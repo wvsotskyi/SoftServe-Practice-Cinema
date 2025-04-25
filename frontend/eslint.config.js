@@ -19,7 +19,6 @@ export default tseslint.config(
     },
     rules: {
       'indent': ['warn', 2],
-      'no-unused-vars': 'warn',
       ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
