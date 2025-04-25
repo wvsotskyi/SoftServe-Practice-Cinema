@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  name      String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions      Session[]
+  refreshTokens RefreshToken[]
+
+  bookings  Booking[]
+  favorites Favorite[]
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Movie {
+  id                   Int          @id @default(autoincrement())
+  tmdbId               Int          @unique
+  imdbId               Int
+  title                String
+  originalTitle        String
+  originalLanguage     String
+  overview             String
+  posterPath           String?
+  backdropPath         String?
+  releaseDate          DateTime?
+  production_countries String[]
+  runtime              Int?
+  budget               Int?
+  revenue              Int?
+  trailerKey           String?
+  voteAverage          Float?
+  voteCount            Int?
+  adult                Boolean      @default(false)
+  genres               Genre[]
+  cast                 Cast[]
+  status               MovieStatus?
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  favorites            Favorite[]
+  showtimes            Showtime[]
+}
+
+model Genre {
+  id     Int     @id
+  name   String
+  movies Movie[]
+}
+
+model Cast {
+  id          Int     @id @default(autoincrement())
+  movie       Movie   @relation(fields: [movieId], references: [id])
+  movieId     Int
+  tmdbId      Int
+  name        String
+  character   String
+  profilePath String?
+  order       Int
+}
+
+model Hall {
+  id        Int        @id @default(autoincrement())
+  name      String
+  seats     Seat[]
+  showtimes Showtime[]
+}
+
+model Seat {
+  id       Int       @id @default(autoincrement())
+  row      Int
+  number   Int
+  hall     Hall      @relation(fields: [hallId], references: [id])
+  hallId   Int
+  bookings Booking[] @relation("BookedSeats")
+}
+
+model Showtime {
+  id       Int       @id @default(autoincrement())
+  movie    Movie     @relation(fields: [movieId], references: [id])
+  movieId  Int
+  hall     Hall      @relation(fields: [hallId], references: [id])
+  hallId   Int
+  time     DateTime
+  price    Float
+  bookings Booking[]
+}
+
+model Booking {
+  id         Int           @id @default(autoincrement())
+  user       User          @relation(fields: [userId], references: [id])
+  userId     Int
+  showtime   Showtime      @relation(fields: [showtimeId], references: [id])
+  showtimeId Int
+  seats      Seat[]        @relation("BookedSeats")
+  totalPrice Float
+  status     BookingStatus @default(CONFIRMED)
+  createdAt  DateTime      @default(now())
+}
+
+model Favorite {
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  movieId   Int
+  movie     Movie    @relation(fields: [movieId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@id([userId, movieId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum MovieStatus {
+  RELEASED
+  UPCOMING
+  IN_PRODUCTION
+}
