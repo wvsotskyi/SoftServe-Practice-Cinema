@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "tsc & node dist",
-    "seed": "ts-node prisma/seed.ts",
-    "generate-types": "ts-node scripts/sync-prisma-types.ts",
-    "postinstall": "prisma generate && npm run generate-types"
+    "seed": "tsx scripts/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,12 +14,15 @@
   "devDependencies": {
     "@types/express": "^5.0.1",
     "@types/node": "^16.11.20",
-    "prisma": "^6.6.0",
+    "prisma": "6.6.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.19.3",
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "@prisma/client": "^6.6.0",
+    "axios": "^1.9.0",
+    "bcryptjs": "^3.0.2",
     "express": "^5.1.0",
     "zod": "^3.24.3"
   }

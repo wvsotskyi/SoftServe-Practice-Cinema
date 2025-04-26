@@ -5,6 +5,16 @@
     "target": "ESNext",
     "sourceMap": true,
     "outDir": "dist",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
     "types": [
       "node",
       "express"
@@ -14,5 +24,8 @@
     "src/**/*",
     "scripts/**/*",
     "prisma/**/*.ts"
-, "scripts"  ],
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
