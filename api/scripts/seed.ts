@@ -1,4 +1,5 @@
-import { PrismaClient, Role, BookingStatus } from '../generated/prisma/default.js';
+import { Seat } from './../../frontend/src/types/prisma';
+import { PrismaClient, Role, BookingStatus, Prisma } from '../generated/prisma/default.js';
 import { hash } from 'bcryptjs';
 import { fillDatabaseWithMovies } from './data-fetch.js';
 
@@ -171,7 +172,7 @@ async function main() {
 
 // Helper function to generate seats for a hall
 function generateSeats(rows: number, seatsPerRow: number) {
-    const seats = [];
+    const seats: any[] = [];
     for (let row = 1; row <= rows; row++) {
         for (let number = 1; number <= seatsPerRow; number++) {
             seats.push({ row, number });
