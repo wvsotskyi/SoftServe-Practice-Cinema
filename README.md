@@ -1,5 +1,26 @@
-# React + TypeScript + Vite
+# Project is split into 2 parts: api and frontend
+# How to Run the API
+```bash
+# Open terminal and navigate to the api directory
+cd api
 
+# Install dependencies
+npm i
+
+# Generate database client
+npm run generate
+
+# Build the project
+npm run build
+
+# Start the server
+npm run start
+```
+
+Once the server is running, visit Swagger docs at:  
+http://localhost:5012/api-docs
+
+# React + TypeScript + Vite
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

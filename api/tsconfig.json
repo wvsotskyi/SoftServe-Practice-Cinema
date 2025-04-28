@@ -1,10 +1,46 @@
 {
-    "compilerOptions": {
-      "module": "NodeNext",
-      "moduleResolution": "NodeNext",
-      "target": "ESNext",
-      "sourceMap": true,
-      "outDir": "dist",
+  "compilerOptions": {
+    "target": "ES2022",                          // Modern ECMAScript version
+    "module": "NodeNext",                     
+
+    "outDir": "./dist",                          // Output directory
+    "rootDir": "./src",                          // Source directory
+    "strict": true,                              // Enable all strict type checking
+    "esModuleInterop": true,                     // Allows synthetic default imports
+    "skipLibCheck": true,                        // Skip type checking of declaration files
+    "forceConsistentCasingInFileNames": true,    // Disallow inconsistently-cased references
+    
+    "noImplicitAny": true,                       // Error on expressions with implied 'any' type
+    "strictNullChecks": true,                    // Enable strict null checks
+    "strictFunctionTypes": true,                 // Enable strict checking of function types
+    "strictBindCallApply": true,                 // Enable strict 'bind', 'call', and 'apply' methods
+    "strictPropertyInitialization": true,        // Check for class property initialization
+    "noImplicitThis": true,                      // Error on 'this' expressions with implied 'any' type
+    "alwaysStrict": true,                        // Parse in strict mode and emit "use strict"
+    
+    "moduleResolution": "NodeNext",        
+    "baseUrl": "./src",
+    "paths": {
+      "@utils/*": ["utils/*"],
+      "@config/*": ["config/*"],
+      "@controllers/*": ["controllers/*"],
+      "@services/*": ["services/*"],
+      "@routes/*": ["routes/*"],
+      "@middlewares/*": ["middlewares/*"],
     },
-    "include": ["src/**/*"],
-  }
+    
+    /* Advanced */
+    "emitDecoratorMetadata": false,              // Disable unless using decorators
+    "experimentalDecorators": false,             // Disable unless using decorators
+    "resolveJsonModule": true,                   // Allows importing JSON files
+    "allowSyntheticDefaultImports": true         // Allows default imports from modules with no default export
+  },
+  "include": ["src/**/*"],                       // Files to include
+  "exclude": [                                   // Files to exclude
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.spec.ts",
+    "prisma"
+  ]
+}
