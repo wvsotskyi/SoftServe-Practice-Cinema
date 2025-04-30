@@ -1,12 +1,10 @@
-import NewMovies from "./NewMovies/NewMovies";
 import css from "./HomePage.module.css";
+import { NewMovies } from "./NewMovies/NewMovies";
 
-function HomePage() {
+export function HomePage() {
   return (
     <div className={css["main-app"]}>
       <NewMovies />
     </div>
   );
 }
-
-export default HomePage;

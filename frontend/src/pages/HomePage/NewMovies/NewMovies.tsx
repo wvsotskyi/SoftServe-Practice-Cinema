@@ -1,12 +1,12 @@
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import MovieRating from "../../../components/MovieRating/MovieRating";
-import MovieTrailer from "../../../components/MovieTrailer/MovieTrailer";
 import { MovieWithRelations } from "../../../types/prisma";
 import css from "./NewMovies.module.css";
+import { MovieRating } from "../../../components/MovieRating/MovieRating";
+import { MovieTrailer } from "../../../components/MovieTrailer/MovieTrailer";
 
-function NewMovies() {
+export function NewMovies() {
   const [newMovies, setNewMovies] = useState<MovieWithRelations[]>([]);
   const carouselRef = useRef<HTMLDivElement | null>(null);
   const scrollQueue = useRef<number[]>([]);
@@ -82,17 +82,17 @@ function NewMovies() {
   const scrollByAmount = (amount: number) => {
     const carousel = carouselRef.current;
     if (!carousel) return;
-    
+
     const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
     const currentScrollLeft = carousel.scrollLeft;
-  
+
     if (
       (amount < 0 && currentScrollLeft < window.innerWidth) ||
       (amount > 0 && currentScrollLeft > maxScrollLeft - window.innerWidth)
     ) {
       return;
     }
-  
+
     if (scrollQueue.current.length === 0) {
       scrollQueue.current.push(amount);
       if (!isProcessingScroll.current) {
@@ -295,5 +295,3 @@ function NewMovies() {
     </div>
   );
 }
-
-export default NewMovies;
