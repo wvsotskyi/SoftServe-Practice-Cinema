@@ -4,7 +4,7 @@ interface MovieRatingProps {
   voteAverage: number;
 }
 
-function MovieRating({ voteAverage }: MovieRatingProps) {
+export function MovieRating({ voteAverage }: MovieRatingProps) {
   return (
     <div className={css["movie-rating"]}>
       <div className={css["movie-rating-wrapper"]}>
@@ -29,5 +29,3 @@ function MovieRating({ voteAverage }: MovieRatingProps) {
     </div>
   );
 };
-
-export default MovieRating;

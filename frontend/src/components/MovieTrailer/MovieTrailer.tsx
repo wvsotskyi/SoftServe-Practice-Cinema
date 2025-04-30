@@ -8,7 +8,7 @@ interface MovieTrailerProps {
   closeTrailer: () => void;
 }
 
-function MovieTrailer({ movie, width, height, closeTrailer }: MovieTrailerProps) {
+export function MovieTrailer({ movie, width, height, closeTrailer }: MovieTrailerProps) {
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
       (e.target as HTMLElement).classList.contains(css["trailer-overlay-wrap"]) ||
@@ -60,5 +60,3 @@ function MovieTrailer({ movie, width, height, closeTrailer }: MovieTrailerProps)
     </div>
   );
 }
-
-export default MovieTrailer;
