@@ -2,6 +2,7 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import MovieRating from "../../../components/MovieRating/MovieRating";
+import MovieTrailer from "../../../components/MovieTrailer/MovieTrailer";
 import { MovieWithRelations } from "../../../types/prisma";
 import css from "./NewMovies.module.css";
 
@@ -10,11 +11,13 @@ function NewMovies() {
   const carouselRef = useRef<HTMLDivElement | null>(null);
   const scrollQueue = useRef<number[]>([]);
   const isProcessingScroll = useRef(false);
-  const targetScrollLeft = useRef<number | null>(null);
   const [clickedId, setClickedId] = useState<number | null>(null);
   const [isAtStart, setIsAtStart] = useState(true);
   const [isAtEnd, setIsAtEnd] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+  const [isTrailerOpen, setIsTrailerOpen] = useState<MovieWithRelations | null>(
+    null
+  );
 
   const loadNewMovies = async () => {
     try {
@@ -32,47 +35,70 @@ function NewMovies() {
     loadNewMovies();
   }, []);
 
-  const processScrollQueue = () => {
+  const processScrollQueue = async () => {
     const carousel = carouselRef.current;
     if (
       !carousel ||
       isProcessingScroll.current ||
       scrollQueue.current.length === 0
-    )
+    ) {
       return;
+    }
 
     isProcessingScroll.current = true;
-    const amount = scrollQueue.current.shift()!;
-    const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
-    let newScrollLeft = carousel.scrollLeft + amount;
 
-    if (newScrollLeft < 0) newScrollLeft = 0;
-    if (newScrollLeft > maxScrollLeft) newScrollLeft = maxScrollLeft;
+    while (scrollQueue.current.length > 0) {
+      const amount = scrollQueue.current.shift()!;
+      const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+      let newScrollLeft = carousel.scrollLeft + amount;
 
-    const onScroll = () => {
-      const diff = Math.abs(carousel.scrollLeft - newScrollLeft);
-      if (diff < 5) {
-        carousel.removeEventListener("scroll", onScroll);
-        isProcessingScroll.current = false;
-        targetScrollLeft.current = null;
-        setIsAtStart(carousel.scrollLeft <= 50);
-        setIsAtEnd(carousel.scrollLeft >= maxScrollLeft - 50);
-        setTimeout(() => processScrollQueue(), 100);
+      if (newScrollLeft < 0) {
+        newScrollLeft = 0;
+      } else if (newScrollLeft > maxScrollLeft) {
+        newScrollLeft = maxScrollLeft;
       }
-    };
 
-    targetScrollLeft.current = newScrollLeft;
-    carousel.addEventListener("scroll", onScroll);
-    carousel.scrollTo({
-      left: newScrollLeft,
-      behavior: "smooth",
-    });
+      await new Promise<void>((resolve) => {
+        const onScroll = () => {
+          const diff = Math.abs(carousel.scrollLeft - newScrollLeft);
+          if (diff < 1) {
+            carousel.removeEventListener("scroll", onScroll);
+            resolve();
+          }
+        };
+
+        carousel.addEventListener("scroll", onScroll);
+        carousel.scrollTo({
+          left: newScrollLeft,
+          behavior: "smooth",
+        });
+      });
+      setIsAtStart(carousel.scrollLeft <= 0);
+      setIsAtEnd(carousel.scrollLeft >= maxScrollLeft);
+    }
+    isProcessingScroll.current = false;
   };
 
   const scrollByAmount = (amount: number) => {
-    if (scrollQueue.current.length > 0) return;
-    scrollQueue.current.push(amount);
-    processScrollQueue();
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    
+    const maxScrollLeft = carousel.scrollWidth - carousel.clientWidth;
+    const currentScrollLeft = carousel.scrollLeft;
+  
+    if (
+      (amount < 0 && currentScrollLeft < window.innerWidth) ||
+      (amount > 0 && currentScrollLeft > maxScrollLeft - window.innerWidth)
+    ) {
+      return;
+    }
+  
+    if (scrollQueue.current.length === 0) {
+      scrollQueue.current.push(amount);
+      if (!isProcessingScroll.current) {
+        processScrollQueue();
+      }
+    }
   };
 
   const scrollLeft = () => scrollByAmount(-window.innerWidth);
@@ -83,9 +109,23 @@ function NewMovies() {
     setTimeout(() => setClickedId(null), 300);
   };
 
+  const openTrailer = (movie: MovieWithRelations) => {
+    setIsTrailerOpen(movie);
+  };
+
+  const closeTrailer = () => {
+    setIsTrailerOpen(null);
+  };
+
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth <= 768) {
+        setIsMobile(true);
+        setIsAtStart(true);
+        setIsAtEnd(false);
+      } else {
+        setIsMobile(false);
+      }
     };
     window.addEventListener("resize", handleResize);
     return () => {
@@ -96,6 +136,14 @@ function NewMovies() {
   if (isMobile) {
     return (
       <div className={css["carousel-container-mobile"]}>
+        {isTrailerOpen && (
+          <MovieTrailer
+            movie={isTrailerOpen}
+            width="270"
+            height="150"
+            closeTrailer={closeTrailer}
+          />
+        )}
         <div className={css["carousel-mobile"]}>
           {newMovies.map((movie) => (
             <Link to={`/movie-details/${movie.id}`} key={movie.id}>
@@ -119,6 +167,14 @@ function NewMovies() {
 
   return (
     <div className={css["carousel-container"]}>
+      {isTrailerOpen && (
+        <MovieTrailer
+          movie={isTrailerOpen}
+          width="640"
+          height="360"
+          closeTrailer={closeTrailer}
+        />
+      )}
       {newMovies.length !== 0 && (
         <button
           className={`${css["carousel-button"]} ${css["left"]} ${
@@ -186,7 +242,10 @@ function NewMovies() {
                   <p className={css["movie-production"]}>
                     <span className={css["label"]}>Виробництво: </span>США
                   </p>
-                  <button className={css["trailer-button"]}>
+                  <button
+                    className={css["trailer-button"]}
+                    onClick={() => openTrailer(movie)}
+                  >
                     <img
                       src={`${import.meta.env.VITE_PUBLIC_URL}/svg/play.svg`}
                       alt="play"
