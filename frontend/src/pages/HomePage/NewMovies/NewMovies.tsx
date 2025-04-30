@@ -261,7 +261,7 @@ export function NewMovies() {
                 </div>
               </div>
               <div className={css["carousel-right"]}>
-                <Link to={`/movie-details/${movie.id}`}>
+                <Link to={`/movie/${movie.id}`}>
                   <button className={css["details-button"]}>
                     <div className={css["arrow-circle"]}>
                       <img
