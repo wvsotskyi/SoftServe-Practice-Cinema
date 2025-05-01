@@ -2,9 +2,9 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { MovieWithRelations } from "../../../types/prisma";
+import css from "./NewMovies.module.css";
 import { MovieRating } from "../../../components/MovieRating/MovieRating";
 import { MovieTrailer } from "../../../components/MovieTrailer/MovieTrailer";
-import css from "./NewMovies.module.css";
 
 export function NewMovies() {
   const [newMovies, setNewMovies] = useState<MovieWithRelations[]>([]);
@@ -119,9 +119,13 @@ export function NewMovies() {
 
   useEffect(() => {
     const handleResize = () => {
-      scrollQueue.current = [];
-      isProcessingScroll.current = false;
-      setIsMobile(window.innerWidth <= 768);
+      if (window.innerWidth <= 768) {
+        setIsMobile(true);
+        setIsAtStart(true);
+        setIsAtEnd(false);
+      } else {
+        setIsMobile(false);
+      }
     };
     window.addEventListener("resize", handleResize);
     return () => {
@@ -129,16 +133,17 @@ export function NewMovies() {
     };
   }, []);
 
-  return (
-    <>
-      {isTrailerOpen && (
-        <MovieTrailer movie={isTrailerOpen} closeTrailer={closeTrailer} />
-      )}
-      <div
-        className={`${css["carousel-container-mobile"]} ${
-          !isMobile ? css["hidden"] : ""
-        }`}
-      >
+  if (isMobile) {
+    return (
+      <div className={css["carousel-container-mobile"]}>
+        {isTrailerOpen && (
+          <MovieTrailer
+            movie={isTrailerOpen}
+            width="270"
+            height="150"
+            closeTrailer={closeTrailer}
+          />
+        )}
         <div className={css["carousel-mobile"]}>
           {newMovies.map((movie) => (
             <Link to={`/movie-details/${movie.id}`} key={movie.id}>
@@ -157,129 +162,136 @@ export function NewMovies() {
           ))}
         </div>
       </div>
-      <div
-        className={`${css["carousel-container"]} ${
-          isMobile ? css["hidden"] : ""
-        }`}
-      >
-        {newMovies.length !== 0 && (
-          <button
-            className={`${css["carousel-button"]} ${css["left"]} ${
-              isAtStart ? css["hidden"] : ""
+    );
+  }
+
+  return (
+    <div className={css["carousel-container"]}>
+      {isTrailerOpen && (
+        <MovieTrailer
+          movie={isTrailerOpen}
+          width="640"
+          height="360"
+          closeTrailer={closeTrailer}
+        />
+      )}
+      {newMovies.length !== 0 && (
+        <button
+          className={`${css["carousel-button"]} ${css["left"]} ${
+            isAtStart ? css["hidden"] : ""
+          }`}
+          onClick={scrollLeft}
+        >
+          <img
+            src={`${import.meta.env.VITE_PUBLIC_URL}/svg/chevron-left.svg`}
+            alt="left"
+          />
+        </button>
+      )}
+      <div className={css["carousel"]} ref={carouselRef}>
+        {newMovies.map((movie) => (
+          <div
+            key={movie.id}
+            className={`${css["carousel-item"]} ${
+              clickedId === movie.id ? css["clicked"] : ""
             }`}
-            onClick={scrollLeft}
+            onClick={() => handleClick(movie.id)}
           >
-            <img
-              src={`${import.meta.env.VITE_PUBLIC_URL}/svg/chevron-left.svg`}
-              alt="left"
-            />
-          </button>
-        )}
-        <div className={css["carousel"]} ref={carouselRef}>
-          {newMovies.map((movie) => (
-            <div
-              key={movie.id}
-              className={`${css["carousel-item"]} ${
-                clickedId === movie.id ? css["clicked"] : ""
-              }`}
-              onClick={() => handleClick(movie.id)}
-            >
-              <div className={css["image-wrapper"]}>
-                <img
-                  src={`${import.meta.env.VITE_TMDB_IMAGE_URL}/original${
-                    movie.backdropPath
-                  }`}
-                  alt={movie.title}
-                  className={css["carousel-image"]}
-                />
-                <div className={css["image-overlay"]}></div>
-              </div>
-              <div className={css["carousel-content"]}>
-                <div className={css["carousel-left"]}>
-                  <div className={css["carousel-left-top"]}>
-                    <h1 className={css["movie-title"]}>{movie.title}</h1>
-                    {movie.voteAverage && movie.voteAverage > 0 && (
-                      <MovieRating voteAverage={movie.voteAverage} />
-                    )}
-                  </div>
-                  <div className={css["carousel-left-bottom"]}>
-                    {movie.runtime && movie.runtime > 0 && (
-                      <p className={css["movie-duration"]}>
-                        {Math.floor(movie.runtime / 60) > 0 &&
-                        movie.runtime % 60 === 0
-                          ? `${Math.floor(movie.runtime / 60)}г.`
-                          : Math.floor(movie.runtime / 60) === 0 &&
-                            movie.runtime % 60 > 0
-                          ? `${movie.runtime % 60}хв.`
-                          : `${Math.floor(movie.runtime / 60)}г.${
-                              movie.runtime % 60
-                            }хв.`}
-                      </p>
-                    )}
-                    <p className={css["movie-description"]}>
-                      {movie.overview || ""}
-                    </p>
-                    <p className={css["movie-language"]}>
-                      <span className={css["label"]}>Мова: </span>українська
-                    </p>
-                    <p className={css["movie-genres"]}>
-                      <span className={css["label"]}>Жанр: </span>
-                      {movie.genres.map((genre) => genre.name).join(", ")}
-                    </p>
-                    <p className={css["movie-production"]}>
-                      <span className={css["label"]}>Виробництво: </span>США
-                    </p>
-                    <button
-                      className={css["trailer-button"]}
-                      onClick={() => openTrailer(movie)}
-                    >
-                      <img
-                        src={`${import.meta.env.VITE_PUBLIC_URL}/svg/play.svg`}
-                        alt="play"
-                      />
-                      ТРЕЙЛЕР
-                    </button>
-                    <Link
-                      to={`movie-sessions/${movie.id}`}
-                      className={css["buy-ticket-button"]}
-                    >
-                      Придбати квитки
-                    </Link>
-                  </div>
+            <div className={css["image-wrapper"]}>
+              <img
+                src={`${import.meta.env.VITE_TMDB_IMAGE_URL}/original${
+                  movie.backdropPath
+                }`}
+                alt={movie.title}
+                className={css["carousel-image"]}
+              />
+              <div className={css["image-overlay"]}></div>
+            </div>
+            <div className={css["carousel-content"]}>
+              <div className={css["carousel-left"]}>
+                <div className={css["carousel-left-top"]}>
+                  <h1 className={css["movie-title"]}>{movie.title}</h1>
+                  {movie.voteAverage && movie.voteAverage > 0 && (
+                    <MovieRating voteAverage={movie.voteAverage} />
+                  )}
                 </div>
-                <div className={css["carousel-right"]}>
-                  <Link to={`/movie-details/${movie.id}`}>
-                    <button className={css["details-button"]}>
-                      <div className={css["arrow-circle"]}>
-                        <img
-                          src={`${
-                            import.meta.env.VITE_PUBLIC_URL
-                          }/svg/arrow-right.svg`}
-                          alt="arrow-right"
-                        />
-                      </div>
-                      <span className={css["details-text"]}>ДЕТАЛЬНІШЕ</span>
-                    </button>
+                <div className={css["carousel-left-bottom"]}>
+                  {movie.runtime && movie.runtime > 0 && (
+                    <p className={css["movie-duration"]}>
+                      {Math.floor(movie.runtime / 60) > 0 &&
+                      movie.runtime % 60 === 0
+                        ? `${Math.floor(movie.runtime / 60)}г.`
+                        : Math.floor(movie.runtime / 60) === 0 &&
+                          movie.runtime % 60 > 0
+                        ? `${movie.runtime % 60}хв.`
+                        : `${Math.floor(movie.runtime / 60)}г.${
+                            movie.runtime % 60
+                          }хв.`}
+                    </p>
+                  )}
+                  <p className={css["movie-description"]}>
+                    {movie.overview || ""}
+                  </p>
+                  <p className={css["movie-language"]}>
+                    <span className={css["label"]}>Мова: </span>українська
+                  </p>
+                  <p className={css["movie-genres"]}>
+                    <span className={css["label"]}>Жанр: </span>
+                    {movie.genres.map((genre) => genre.name).join(", ")}
+                  </p>
+                  <p className={css["movie-production"]}>
+                    <span className={css["label"]}>Виробництво: </span>США
+                  </p>
+                  <button
+                    className={css["trailer-button"]}
+                    onClick={() => openTrailer(movie)}
+                  >
+                    <img
+                      src={`${import.meta.env.VITE_PUBLIC_URL}/svg/play.svg`}
+                      alt="play"
+                    />
+                    ТРЕЙЛЕР
+                  </button>
+                  <Link
+                    to={`movie-sessions/${movie.id}`}
+                    className={css["buy-ticket-button"]}
+                  >
+                    Придбати квитки
                   </Link>
                 </div>
               </div>
+              <div className={css["carousel-right"]}>
+                <Link to={`/movie/${movie.id}`}>
+                  <button className={css["details-button"]}>
+                    <div className={css["arrow-circle"]}>
+                      <img
+                        src={`${
+                          import.meta.env.VITE_PUBLIC_URL
+                        }/svg/arrow-right.svg`}
+                        alt="arrow-right"
+                      />
+                    </div>
+                    <span className={css["details-text"]}>ДЕТАЛЬНІШЕ</span>
+                  </button>
+                </Link>
+              </div>
             </div>
-          ))}
-        </div>
-        {newMovies.length !== 0 && (
-          <button
-            className={`${css["carousel-button"]} ${css["right"]} ${
-              isAtEnd ? css["hidden"] : ""
-            }`}
-            onClick={scrollRight}
-          >
-            <img
-              src={`${import.meta.env.VITE_PUBLIC_URL}/svg/chevron-right.svg`}
-              alt="right"
-            />
-          </button>
-        )}
+          </div>
+        ))}
       </div>
-    </>
+      {newMovies.length !== 0 && (
+        <button
+          className={`${css["carousel-button"]} ${css["right"]} ${
+            isAtEnd ? css["hidden"] : ""
+          }`}
+          onClick={scrollRight}
+        >
+          <img
+            src={`${import.meta.env.VITE_PUBLIC_URL}/svg/chevron-right.svg`}
+            alt="right"
+          />
+        </button>
+      )}
+    </div>
   );
 }
