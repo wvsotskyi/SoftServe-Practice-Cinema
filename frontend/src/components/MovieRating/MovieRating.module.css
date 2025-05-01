@@ -4,7 +4,6 @@
     width: 210px;
     height: 19px;
     gap: 15px;
-    align-items: center;
 }
 
 img {
@@ -28,6 +27,7 @@ img {
 }
 
 .movie-rating-layer-num {
+    margin-top: -4px;
     font-size: 19px;
     font-weight: bold;
     color: #fff;
