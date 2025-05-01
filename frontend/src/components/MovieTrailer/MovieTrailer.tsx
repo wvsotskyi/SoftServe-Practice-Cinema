@@ -1,14 +1,26 @@
+import { useEffect, useState } from "react";
 import { MovieWithRelations } from "../../types/prisma";
 import css from "./MovieTrailer.module.css";
 
 interface MovieTrailerProps {
   movie: MovieWithRelations;
-  width: number | string;
-  height: number | string;
   closeTrailer: () => void;
 }
 
-export function MovieTrailer({ movie, width, height, closeTrailer }: MovieTrailerProps) {
+export function MovieTrailer({ movie, closeTrailer }: MovieTrailerProps) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+  
+  const width = isMobile ? 320 : 640;
+  const height = isMobile ? 180 : 360;
+
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
       (e.target as HTMLElement).classList.contains(css["trailer-overlay-wrap"]) ||

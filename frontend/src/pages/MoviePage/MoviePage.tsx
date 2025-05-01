@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { MovieWithRelations, Cast, Genre } from "../../types/prisma";
 import { useParams } from "react-router-dom";
-import {FavoriteButton} from "../../components/FavoriteButton/FavoriteButton";
-import {ActorCard} from "../../components/ActorCard/ActorCard";
-import triangle from "../../assets/images/triangle.png";
+import { FavoriteButton } from "../../components/FavoriteButton/FavoriteButton";
+import { ActorCard } from "../../components/ActorCard/ActorCard";
 import { MovieRating } from "../../components/MovieRating/MovieRating";
+import { MovieTrailer } from "../../components/MovieTrailer/MovieTrailer";
 
 export function MoviePage() {
   const { id } = useParams<{ id: string }>();
   const [movieData, setMovieData] = useState<MovieWithRelations | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isTrailerOpen, setIsTrailerOpen] = useState(false);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/api/movies/${id}`)
@@ -35,6 +36,20 @@ export function MoviePage() {
       });
   }, [id]);
 
+  const getFullImageUrl = (path: string | null) => {
+    return path
+      ? `${`${import.meta.env.VITE_TMDB_IMAGE_URL}/w500`}${path}`
+      : "";
+  };
+
+  const openTrailer = () => {
+    setIsTrailerOpen(true);
+  };
+
+  const closeTrailer = () => {
+    setIsTrailerOpen(false);
+  };
+
   if (loading) {
     return (
       <div className="text-white text-center py-8 pt-16">Завантаження...</div>
@@ -53,12 +68,6 @@ export function MoviePage() {
     );
   }
 
-  const getFullImageUrl = (path: string | null) => {
-    return path
-      ? `${`${import.meta.env.VITE_TMDB_IMAGE_URL}/w500`}${path}`
-      : "";
-  };
-
   return (
     <div
       className="min-h-screen bg-cover bg-center font-mono font-bold text-lg leading-none tracking-normal pt-14"
@@ -67,6 +76,10 @@ export function MoviePage() {
       }}
     >
       <div className="backdrop-blur-xs bg-black/70 min-h-screen">
+        {isTrailerOpen && movieData.trailerKey && (
+          <MovieTrailer movie={movieData} closeTrailer={closeTrailer} />
+        )}
+
         <div className="mx-[11%] px-4 py-8 flex flex-col md:flex-row gap-8">
           {/* Постер і кнопка трейлера */}
           <div className="w-full md:w-1/3">
@@ -75,9 +88,17 @@ export function MoviePage() {
               alt={movieData.originalTitle}
               className="rounded-t-lg shadow-xl w-full"
             />
-            <button className="w-full bg-red-600 text-white py-3 hover:bg-red-700 transition flex items-center justify-center gap-2 rounded-none font-mono font-bold text-[18px] leading-[100%] tracking-[0.1em]">
-              <img src={triangle} alt="Play" className="h-5 w-5" />
-              <span>ДИВИТИСЯ ТРЕЙЛЕР</span>
+            <button
+              onClick={openTrailer}
+              className="w-full flex items-center justify-center gap-2 bg-[#D5362E] text-white py-3 hover:bg-red-600 transition-colors rounded-b-lg"
+              disabled={!movieData.trailerKey}
+            >
+              <img
+                src={`${import.meta.env.VITE_PUBLIC_URL}/svg/play.svg`}
+                alt="Play"
+                className="h-6 w-6 filter brightness-0 invert"
+              />
+              <span className="font-bold">ДИВИТИСЯ ТРЕЙЛЕР</span>
             </button>
           </div>
 
@@ -117,9 +138,9 @@ export function MoviePage() {
             <p>
               <span className="text-[#D5362E]">Тривалість:</span>{" "}
               {movieData.runtime
-                ? `${Math.floor(movieData.runtime / 60)} год ${
+                ? `${Math.floor(movieData.runtime / 60)}г.${
                   movieData.runtime % 60
-                } хв`
+                }хв.`
                 : "Невідомо"}
             </p>
 
@@ -153,4 +174,4 @@ export function MoviePage() {
       </div>
     </div>
   );
-};
+}
