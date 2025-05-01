@@ -1,10 +1,14 @@
 import { Cast } from '../../types/prisma';
 
-const ActorCard = ({ actor }: { actor: Cast }) => {
+const getFullImageUrl = (path: string | null) => {
+  return path ? `${import.meta.env.VITE_TMDB_IMAGE_URL}/w200${path}` : '';
+};
+
+export function ActorCard({ actor }: { actor: Cast }) {
   return (
     <div className="flex flex-col items-center w-36">
       <img 
-        src={actor.profilePath || ''} 
+        src={getFullImageUrl(actor.profilePath)} 
         alt={actor.name} 
         className="w-[140px] h-[200px] object-cover mb-2" 
       />
@@ -13,5 +17,3 @@ const ActorCard = ({ actor }: { actor: Cast }) => {
     </div>
   );
 };
-
-export default ActorCard;

@@ -1,19 +1,19 @@
 import { useEffect, useState } from "react";
 import { MovieWithRelations, Cast, Genre } from "../../types/prisma";
 import { useParams } from "react-router-dom";
-import FavoriteButton from "../../components/FavoriteButton/FavoriteButton";
-import ActorCard from "../../components/ActorCard/ActorCard";
+import {FavoriteButton} from "../../components/FavoriteButton/FavoriteButton";
+import {ActorCard} from "../../components/ActorCard/ActorCard";
 import triangle from "../../assets/images/triangle.png";
 import { MovieRating } from "../../components/MovieRating/MovieRating";
 
-const MoviePage = () => {
+export function MoviePage() {
   const { id } = useParams<{ id: string }>();
   const [movieData, setMovieData] = useState<MovieWithRelations | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`http://localhost:5012/api/movies/${id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/movies/${id}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`);
@@ -118,8 +118,8 @@ const MoviePage = () => {
               <span className="text-[#D5362E]">Тривалість:</span>{" "}
               {movieData.runtime
                 ? `${Math.floor(movieData.runtime / 60)} год ${
-                    movieData.runtime % 60
-                  } хв`
+                  movieData.runtime % 60
+                } хв`
                 : "Невідомо"}
             </p>
 
@@ -132,8 +132,8 @@ const MoviePage = () => {
               {movieData.status === "RELEASED"
                 ? "Випущено"
                 : movieData.status === "UPCOMING"
-                ? "Очікується"
-                : "В прокаті"}
+                  ? "Очікується"
+                  : "В прокаті"}
             </p>
 
             <p className="text-lg">{movieData.overview}</p>
@@ -154,5 +154,3 @@ const MoviePage = () => {
     </div>
   );
 };
-
-export default MoviePage;

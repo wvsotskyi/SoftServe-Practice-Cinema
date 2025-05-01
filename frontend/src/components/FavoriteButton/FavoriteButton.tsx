@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const FavoriteButton = () => {
+export function FavoriteButton() {
   const [isFavorite, setIsFavorite] = useState(false);
 
   return (
@@ -25,5 +25,3 @@ const FavoriteButton = () => {
     </div>
   );
 };
-
-export default FavoriteButton;
