@@ -21,13 +21,15 @@ export function MovieTrailer({ movie, closeTrailer }: MovieTrailerProps) {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-  
+
   const width = isMobile ? 320 : 640;
   const height = isMobile ? 180 : 360;
 
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
-      (e.target as HTMLElement).classList.contains(css["trailer-overlay-wrap"]) ||
+      (e.target as HTMLElement).classList.contains(
+        css["trailer-overlay-wrap"]
+      ) ||
       (e.target as HTMLElement).classList.contains(css["trailer-holder"])
     ) {
       closeTrailer();
@@ -56,9 +58,10 @@ export function MovieTrailer({ movie, closeTrailer }: MovieTrailerProps) {
             «{movie.title}»{" "}
             <small>
               (оригінальна назва: "{movie.originalTitle}",{" "}
-                {movie.releaseDate ? String(movie.releaseDate).split("-")[0] : ""})
+              {movie.releaseDate ? String(movie.releaseDate).split("-")[0] : ""}
+              )
             </small>
-   ove    </div>
+          </div>
           <div className={css["trailer-description"]}>{movie.overview}</div>
         </div>
       </div>
