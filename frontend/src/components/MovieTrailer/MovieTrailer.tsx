@@ -14,8 +14,12 @@ export function MovieTrailer({ movie, closeTrailer }: MovieTrailerProps) {
     const handleResize = () => {
       setIsMobile(window.innerWidth <= 768);
     };
+    document.body.style.overflow = "hidden";
     window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
   
   const width = isMobile ? 320 : 640;
@@ -54,7 +58,7 @@ export function MovieTrailer({ movie, closeTrailer }: MovieTrailerProps) {
               (оригінальна назва: "{movie.originalTitle}",{" "}
                 {movie.releaseDate ? String(movie.releaseDate).split("-")[0] : ""})
             </small>
-          </div>
+   ove    </div>
           <div className={css["trailer-description"]}>{movie.overview}</div>
         </div>
       </div>

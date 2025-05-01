@@ -4,8 +4,10 @@ export function FavoriteButton() {
   const [isFavorite, setIsFavorite] = useState(false);
 
   return (
-    <div className="flex items-center gap-2 ml-auto">
-      <span className="text-white text-base font-medium">Додати в обране</span>
+    <div className="flex items-center gap-2">
+      <span className="hidden md:inline text-white text-base font-medium">
+        {isFavorite ? "В обраному" : "Додати в обране"}
+      </span>
       <button 
         onClick={() => setIsFavorite(!isFavorite)}
         className="p-1 border-2 border-red-500 rounded-lg text-red-500"

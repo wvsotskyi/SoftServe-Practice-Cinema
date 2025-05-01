@@ -131,7 +131,7 @@ export function NewMovies() {
 
   return (
     <>
-      {isTrailerOpen && (
+      {isTrailerOpen && isTrailerOpen.trailerKey && (
         <MovieTrailer movie={isTrailerOpen} closeTrailer={closeTrailer} />
       )}
       <div
@@ -141,7 +141,7 @@ export function NewMovies() {
       >
         <div className={css["carousel-mobile"]}>
           {newMovies.map((movie) => (
-            <Link to={`/movie-details/${movie.id}`} key={movie.id}>
+            <Link to={`/movie/${movie.id}`} key={movie.id}>
               <div className={css["carousel-item-mobile"]}>
                 <img
                   src={`${import.meta.env.VITE_TMDB_IMAGE_URL}/original${

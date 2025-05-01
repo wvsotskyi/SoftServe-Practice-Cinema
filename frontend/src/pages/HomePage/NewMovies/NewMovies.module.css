@@ -314,8 +314,6 @@
 .carousel-container-mobile {
     position: relative;
     overflow-y: auto;
-    width: 100vw;
-    height: 100vh;
 }
 
 .carousel-mobile {
