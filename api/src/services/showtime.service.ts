@@ -17,7 +17,7 @@ interface ShowtimeFilterOptions {
   times: string[];
 }
 
-export const getShowtimesGroupedByMovie = async (filters: ShowtimeFilters = {}) => {
+export async function getShowtimesGroupedByMovie  (filters: ShowtimeFilters = {})  {
   const { date, timeRange, genreId, movieId } = filters;
 
   const dateFilter = date ? {
@@ -58,7 +58,7 @@ export const getShowtimesGroupedByMovie = async (filters: ShowtimeFilters = {}) 
   });
 };
 
-export const getShowtimeFilterOptions = async (): Promise<ShowtimeFilterOptions> => {
+export async function getShowtimeFilterOptions  (): Promise<ShowtimeFilterOptions>  {
   // Get all unique genres that have showtimes
   const genres = await prisma.genre.findMany({
     where: {
@@ -120,7 +120,7 @@ interface CreateShowtimeInput {
   price: number;
 }
 
-export const createShowtime = async (input: CreateShowtimeInput) => {
+export async function createShowtime  (input: CreateShowtimeInput)  {
   // Validate movie exists
   const movieExists = await prisma.movie.findUnique({
     where: { id: input.movieId }

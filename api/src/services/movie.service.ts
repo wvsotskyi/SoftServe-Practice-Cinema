@@ -6,7 +6,7 @@ export type MovieWithRelations = Movie & {
   cast: Cast[];
 };
 
-export const getMovies = async (): Promise<MovieWithRelations[]> => {
+export async function getMovies (): Promise<MovieWithRelations[]>  {
   return await prisma.movie.findMany({
     include: {
       genres: true,
@@ -22,7 +22,7 @@ export const getMovies = async (): Promise<MovieWithRelations[]> => {
   });
 };
 
-export const getMovieById = async (id: number) => {
+export async function getMovieById (id: number)  {
     if (!id || isNaN(id)) {
       throw new Error('Invalid movie ID');
     }
@@ -50,7 +50,7 @@ interface MovieSearchParams {
     limit?: number | string;
   }
   
-  export const searchMovies = async (params: MovieSearchParams) => {
+  export async function searchMovies (params: MovieSearchParams)  {
     const {
       genres,
       year,
@@ -171,7 +171,7 @@ interface MovieSearchParams {
     };
   };
 
-  export const updateMovieWithRelations = async (
+  export async function updateMovieWithRelations (
     id: number,
     updateData: Prisma.MovieUpdateInput & {
       genres?: number[];
@@ -185,7 +185,7 @@ interface MovieSearchParams {
       }>;
       productionCountries?: string[];
     }
-  ): Promise<MovieWithRelations> => {
+  ): Promise<MovieWithRelations>  {
     return await prisma.$transaction(async (tx) => {
       // Handle cast updates
       if (updateData.cast) {
@@ -266,7 +266,7 @@ interface MovieSearchParams {
     });
   };
   
-  export const deleteMovieWithRelations = async (id: number): Promise<void> => {
+  export async function deleteMovieWithRelations  (id: number): Promise<void>  {
     await prisma.$transaction(async (tx) => {
       // Delete related records first
       await tx.cast.deleteMany({ where: { movieId: id } });

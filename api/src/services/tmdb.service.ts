@@ -1,7 +1,7 @@
 import prisma from '@utils/db.js';
 import { fetchMovieDetails, mapTmdbMovieToPrisma } from '@utils/tmdb.js';
 
-export const searchMoviesOnTMDB = async (query: string) => {
+export async function searchMoviesOnTMDB  (query: string)  {
   try {
     const url = new URL(`${process.env.TMDB_BASE_URL}/search/movie`);
     url.searchParams.append('api_key', process.env.TMDB_API_KEY as string);
@@ -30,7 +30,7 @@ export const searchMoviesOnTMDB = async (query: string) => {
   }
 };
 
-export const addMovieFromTMDB = async (tmdbId: number) => {
+export async function addMovieFromTMDB (tmdbId: number) {
   try {
     const tmdbMovie = await fetchMovieDetails(tmdbId);
 

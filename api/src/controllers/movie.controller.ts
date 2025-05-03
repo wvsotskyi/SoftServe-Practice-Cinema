@@ -45,7 +45,7 @@ export async function getMovieController(req: Request, res: Response) {
   }
 };
 
-export const searchMoviesController = async (req: Request, res: Response) => {
+export async function searchMoviesController  (req: Request, res: Response)  {
   try {
     const result = await searchMovies(req.query);
 
@@ -143,7 +143,7 @@ export const searchMoviesController = async (req: Request, res: Response) => {
  *         order:
  *           type: integer
  */
-export const updateMovieController = async (req: Request, res: Response) => {
+export async function updateMovieController  (req: Request, res: Response)  {
   try {
     await verifyAdmin(req, res, () => {});
     
@@ -185,7 +185,7 @@ export const updateMovieController = async (req: Request, res: Response) => {
   }
 };
 
-export const deleteMovieController = async (req: Request, res: Response) => {
+export async function deleteMovieController  (req: Request, res: Response)  {
   try {
     await verifyAdmin(req, res, () => {});
     
