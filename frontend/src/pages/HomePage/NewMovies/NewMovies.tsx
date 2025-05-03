@@ -227,7 +227,7 @@ export function NewMovies() {
                       {movie.genres.map((genre) => genre.name).join(", ")}
                     </p>
                     <p className={css["movie-production"]}>
-                      <span className={css["label"]}>Виробництво: </span>США
+                      <span className={css["label"]}>Виробництво: </span>{movie.productionCountries.join(", ")}
                     </p>
                     <button
                       className={css["trailer-button"]}

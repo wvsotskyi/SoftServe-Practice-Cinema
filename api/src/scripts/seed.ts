@@ -1,5 +1,4 @@
-import { Seat } from './../../frontend/src/types/prisma';
-import { PrismaClient, Role, BookingStatus, Prisma } from '../generated/prisma/default.js';
+import { PrismaClient, Role, BookingStatus, Prisma } from '../../generated/prisma/default.js';
 import { hash } from 'bcryptjs';
 import { fillDatabaseWithMovies } from './data-fetch.js';
 

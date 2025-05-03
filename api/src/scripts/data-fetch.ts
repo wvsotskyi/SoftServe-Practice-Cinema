@@ -1,4 +1,5 @@
-import { PrismaClient, MovieStatus, Prisma } from '../generated/prisma/default.js';
+import { PrismaClient, MovieStatus, Prisma } from '../../generated/prisma/default.js';
+import { ukrainianCountryNames } from './countries.js';
 
 const prisma = new PrismaClient();
 
@@ -115,7 +116,7 @@ function mapTmdbMovieToPrisma(tmdbMovie: TMDBMovie): Prisma.MovieUpsertArgs {
 
   // Map production countries to string array
   const productionCountries = tmdbMovie.production_countries.map(
-    (country) => country.iso_3166_1
+    (country) => ukrainianCountryNames[country.iso_3166_1] || country.name
   );
 
   // Convert IMDB ID to number (remove 'tt' prefix)
@@ -133,7 +134,7 @@ function mapTmdbMovieToPrisma(tmdbMovie: TMDBMovie): Prisma.MovieUpsertArgs {
       posterPath: tmdbMovie.poster_path,
       backdropPath: tmdbMovie.backdrop_path,
       releaseDate: tmdbMovie.release_date ? new Date(tmdbMovie.release_date) : null,
-      production_countries: productionCountries,
+      productionCountries: productionCountries,
       runtime: tmdbMovie.runtime,
       budget: tmdbMovie.budget,
       revenue: tmdbMovie.revenue,
@@ -167,7 +168,7 @@ function mapTmdbMovieToPrisma(tmdbMovie: TMDBMovie): Prisma.MovieUpsertArgs {
       posterPath: tmdbMovie.poster_path,
       backdropPath: tmdbMovie.backdrop_path,
       releaseDate: tmdbMovie.release_date ? new Date(tmdbMovie.release_date) : null,
-      production_countries: productionCountries,
+      productionCountries: productionCountries,
       runtime: tmdbMovie.runtime,
       budget: tmdbMovie.budget,
       revenue: tmdbMovie.revenue,
