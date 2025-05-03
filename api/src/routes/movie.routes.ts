@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { getAllMoviesController, getMovieController, searchMoviesController } from '@controllers/movie.controller.js';
+import { deleteMovieController, getAllMoviesController, getMovieController, searchMoviesController, updateMovieController } from '@controllers/movie.controller.js';
+import { authenticated, verifyAdmin } from '@middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -137,5 +138,84 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
+/**
+ * @swagger
+ * /movies/{id}:
+ *   put:
+ *     summary: Update a movie with all relations (Admin only)
+ *     tags: [Movies]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Movie ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/MovieUpdateInput'
+ *     responses:
+ *       200:
+ *         description: Movie updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Movie'
+ *       400:
+ *         description: Invalid input
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: Movie not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/:id', authenticated(), verifyAdmin, async (req, res, next) => {
+  try {
+    await updateMovieController(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @swagger
+ * /movies/{id}:
+ *   delete:
+ *     summary: Delete a movie and all related data (Admin only)
+ *     tags: [Movies]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: Movie ID
+ *     responses:
+ *       200:
+ *         description: Movie and all related data deleted successfully
+ *       400:
+ *         description: Invalid movie ID
+ *       403:
+ *         description: Forbidden - Admin access required
+ *       404:
+ *         description: Movie not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/:id', authenticated(), verifyAdmin, async (req, res, next) => {
+  try {
+    await deleteMovieController(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;

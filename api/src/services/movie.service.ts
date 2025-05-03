@@ -1,5 +1,5 @@
 import prisma from "@utils/db.js";
-import { Movie, Cast, Genre } from "../../generated/prisma/default.js";
+import { Movie, Cast, Genre, Prisma } from "../../generated/prisma/default.js";
 
 export type MovieWithRelations = Movie & {
   genres: Genre[];
@@ -169,4 +169,122 @@ interface MovieSearchParams {
         totalPages: Math.ceil(total / limitNumber)
       }
     };
+  };
+
+  export const updateMovieWithRelations = async (
+    id: number,
+    updateData: Prisma.MovieUpdateInput & {
+      genres?: number[];
+      cast?: Array<{
+        id?: number;
+        tmdbId: number;
+        name: string;
+        character: string;
+        profilePath?: string | null;
+        order: number;
+      }>;
+      productionCountries?: string[];
+    }
+  ): Promise<MovieWithRelations> => {
+    return await prisma.$transaction(async (tx) => {
+      // Handle cast updates
+      if (updateData.cast) {
+        // Delete existing cast not in new list
+        await tx.cast.deleteMany({
+          where: {
+            movieId: id,
+            NOT: {
+              OR: [
+                { id: { in: updateData.cast.filter(c => c.id).map(c => c.id!) } },
+                { tmdbId: { in: updateData.cast.map(c => c.tmdbId) } }
+              ]
+            }
+          }
+        });
+  
+        // Upsert each cast member
+        for (const castMember of updateData.cast) {
+          await tx.cast.upsert({
+            where: { 
+              id: castMember.id || 0, // 0 will force create
+              movieId: id
+            },
+            update: {
+              tmdbId: castMember.tmdbId,
+              name: castMember.name,
+              character: castMember.character,
+              profilePath: castMember.profilePath,
+              order: castMember.order
+            },
+            create: {
+              tmdbId: castMember.tmdbId,
+              name: castMember.name,
+              character: castMember.character,
+              profilePath: castMember.profilePath,
+              order: castMember.order,
+              movieId: id
+            }
+          });
+        }
+        delete updateData.cast;
+      }
+  
+      // Handle genre updates
+      if (updateData.genres) {
+        await tx.movie.update({
+          where: { id },
+          data: {
+            genres: {
+              set: updateData.genres.map(genreId => ({ id: genreId }))
+            }
+          }
+        });
+        delete updateData.genres;
+      }
+  
+      const movieUpdatePayload: Prisma.MovieUpdateInput = {
+        ...updateData
+      };
+  
+      // Handle production countries separately
+      if (updateData.productionCountries) {
+        movieUpdatePayload.productionCountries = updateData.productionCountries;
+        delete updateData.productionCountries;
+      }
+  
+      // Update movie fields
+      return await tx.movie.update({
+        where: { id },
+        data: movieUpdatePayload,
+        include: {
+          genres: true,
+          cast: true,
+          showtimes: true,
+          favorites: true
+        }
+      });
+    });
+  };
+  
+  export const deleteMovieWithRelations = async (id: number): Promise<void> => {
+    await prisma.$transaction(async (tx) => {
+      // Delete related records first
+      await tx.cast.deleteMany({ where: { movieId: id } });
+      await tx.favorite.deleteMany({ where: { movieId: id } });
+      
+      // Delete showtimes and their bookings
+      const showtimes = await tx.showtime.findMany({
+        where: { movieId: id },
+        select: { id: true }
+      });
+      
+      await tx.booking.deleteMany({
+        where: { showtimeId: { in: showtimes.map(s => s.id) } }
+      });
+      
+      await tx.showtime.deleteMany({ where: { movieId: id } });
+      
+      // Finally delete the movie
+      await tx.movie.delete({ where: { id } });
+    });
   };

@@ -7,10 +7,10 @@ interface APIResponseOptions {
   errors?: any;
 }
 
-export const APIResponse = (
+export function APIResponse (
   res: Response,
   { status, message, data, errors }: APIResponseOptions
-) => {
+)  {
   return res.status(status).json({
     success: status >= 200 && status < 300,
     message,

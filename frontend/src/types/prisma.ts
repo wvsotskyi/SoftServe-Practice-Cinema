@@ -36,7 +36,7 @@ export type Movie = {
     posterPath: string | null;
     backdropPath: string | null;
     releaseDate: Date | null;
-    production_countries: string[];
+    productionCountries: string[];
     runtime: number | null;
     budget: number | null;
     revenue: number | null;

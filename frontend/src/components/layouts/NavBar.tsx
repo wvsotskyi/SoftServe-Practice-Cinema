@@ -24,7 +24,9 @@ export function Navbar({ navItems }: NavBarProps) {
   return (
     <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-2 bg-gray-800/70 backdrop-blur-sm shadow-md">
       <div className="flex items-center">
-        <img src="/svg/logo.svg" alt="LUMIX" className="h-10 p-0 mr-36" />
+        <Link to={"/"}>
+          <img src="/svg/logo.svg" alt="LUMIX" className="h-10 p-0 mr-36" />
+        </Link>
 
         <div className="hidden md:flex items-center space-x-8">
           {navItems.map((item) => (

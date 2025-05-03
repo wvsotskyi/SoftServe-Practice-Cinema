@@ -7,7 +7,7 @@ import {
 } from '@services/booking.service.js';
 import { APIResponse } from '@utils/apiResponse.js';
 
-export const createBookingController = async (req: Request, res: Response) => {
+export async function createBookingController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
     const { showtimeId, seatIds } = req.body;
@@ -34,7 +34,7 @@ export const createBookingController = async (req: Request, res: Response) => {
   }
 };
 
-export const getUserBookingsController = async (req: Request, res: Response) => {
+export async function getUserBookingsController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
 
@@ -60,7 +60,7 @@ export const getUserBookingsController = async (req: Request, res: Response) => 
   }
 };
 
-export const updateBookingController = async (req: Request, res: Response) => {
+export async function updateBookingController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
     const bookingId = Number(req.params.id);
@@ -88,7 +88,7 @@ export const updateBookingController = async (req: Request, res: Response) => {
   }
 };
 
-export const cancelBookingController = async (req: Request, res: Response) => {
+export async function cancelBookingController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
     const bookingId = Number(req.params.id);

@@ -7,7 +7,7 @@ import {
 } from '@services/favorite.service.js';
 import { APIResponse } from '@utils/apiResponse.js';
 
-export const addFavoriteController = async (req: Request, res: Response) => {
+export async function addFavoriteController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
     const { movieId } = req.body;
@@ -16,7 +16,7 @@ export const addFavoriteController = async (req: Request, res: Response) => {
     if (!movieId) throw new Error('Movie ID is required');
 
     const favorite = await addFavorite(userId, Number(movieId));
-    
+
     return APIResponse(res, {
       status: 201,
       message: 'Movie added to favorites',
@@ -30,7 +30,7 @@ export const addFavoriteController = async (req: Request, res: Response) => {
   }
 };
 
-export const removeFavoriteController = async (req: Request, res: Response) => {
+export async function removeFavoriteController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
     const { movieId } = req.params;
@@ -38,7 +38,7 @@ export const removeFavoriteController = async (req: Request, res: Response) => {
     if (!userId) throw new Error('Authentication required');
 
     await removeFavorite(userId, Number(movieId));
-    
+
     return APIResponse(res, {
       status: 200,
       message: 'Movie removed from favorites'
@@ -51,14 +51,14 @@ export const removeFavoriteController = async (req: Request, res: Response) => {
   }
 };
 
-export const getFavoritesController = async (req: Request, res: Response) => {
+export async function getFavoritesController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
 
     if (!userId) throw new Error('Authentication required');
 
     const favorites = await getUserFavorites(userId);
-    
+
     return APIResponse(res, {
       status: 200,
       message: 'Favorites retrieved successfully',
@@ -72,7 +72,7 @@ export const getFavoritesController = async (req: Request, res: Response) => {
   }
 };
 
-export const checkFavoriteController = async (req: Request, res: Response) => {
+export async function checkFavoriteController(req: Request, res: Response) {
   try {
     const userId = req.user?.userId;
     const { movieId } = req.params;
@@ -80,7 +80,7 @@ export const checkFavoriteController = async (req: Request, res: Response) => {
     if (!userId) throw new Error('Authentication required');
 
     const isFavorite = await isMovieFavorite(userId, Number(movieId));
-    
+
     return APIResponse(res, {
       status: 200,
       message: 'Favorite status checked',

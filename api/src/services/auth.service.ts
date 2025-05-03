@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '@utils/db.js';
-import { User, Session, RefreshToken } from '../../generated/prisma/default.js'   ;
+import { User, Session, RefreshToken } from '../../generated/prisma/default.js';
 
 const JWT_CONFIG = {
   secret: process.env.JWT_SECRET as Secret || 'random-strong-secret',
@@ -20,11 +20,11 @@ interface TokenPayload {
   sessionId: string;
 }
 
-export const registerUser = async (
-  email: string, 
-  password: string, 
+export async function registerUser(
+  email: string,
+  password: string,
   name?: string
-): Promise<Omit<User, 'password'>> => {
+): Promise<Omit<User, 'password'>> {
   const existingUser = await prisma.user.findUnique({ where: { email } });
 
   if (existingUser) {
@@ -41,7 +41,7 @@ export const registerUser = async (
   return userWithoutPassword;
 };
 
-export const loginUser = async (email: string, password: string) => {
+export async function loginUser(email: string, password: string) {
   const user = await prisma.user.findUnique({ where: { email } });
 
   if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -92,7 +92,7 @@ export const loginUser = async (email: string, password: string) => {
   };
 };
 
-export const refreshAccessToken = async (refreshToken: string) => {
+export async function refreshAccessToken  (refreshToken: string)  {
   const tokenData = await prisma.refreshToken.findUnique({
     where: { token: refreshToken },
     include: { user: true }
@@ -135,9 +135,9 @@ export const refreshAccessToken = async (refreshToken: string) => {
   };
 };
 
-export const logoutUser = async (sessionId: string, refreshToken?: string) => {
+export async function logoutUser(sessionId: string, refreshToken?: string) {
   await prisma.session.delete({ where: { id: sessionId } });
-  
+
   if (refreshToken) {
     await prisma.refreshToken.delete({ where: { token: refreshToken } });
   }

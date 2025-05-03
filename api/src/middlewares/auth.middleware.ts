@@ -5,7 +5,7 @@ import prisma from '@utils/db.js';
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
 // Properly typed middleware that doesn't return a Response
-export const authenticate = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+export async function authenticate  (req: Request, res: Response, next: NextFunction): Promise<void>  {
   try {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -37,8 +37,22 @@ export const authenticate = async (req: Request, res: Response, next: NextFuncti
 };
 
 // Middleware factory for routes
-export const authenticated = () => {
+export function authenticated()  {
   return (req: Request, res: Response, next: NextFunction) => {
     authenticate(req, res, next).catch(next);
   };
+};
+
+export async function verifyAdmin (req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = req.user; 
+    
+    if (!user || user.role !== 'ADMIN') {
+      throw new Error('Unauthorized - Admin access required');
+    }
+    
+    next();
+  } catch (error) {
+    next(error);
+  }
 };

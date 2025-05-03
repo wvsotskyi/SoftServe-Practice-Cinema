@@ -87,82 +87,84 @@ async function main() {
     }
 
     // Create showtimes (relative to current date)
-    const now = new Date();
-    const showtimes = await Promise.all([
-        // Today
-        prisma.showtime.create({
-            data: {
-                movieId: movies[0].id,
-                hallId: halls[0].id,
-                time: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 0), // Today at 14:00
-                price: 12.5,
-            },
-        }),
-        prisma.showtime.create({
-            data: {
-                movieId: movies[1].id,
-                hallId: halls[1].id,
-                time: new Date(now.getFullYear(), now.getMonth(), now.getDate(), 17, 30), // Today at 17:30
-                price: 15.0,
-            },
-        }),
-        // Tomorrow
-        prisma.showtime.create({
-            data: {
-                movieId: movies[2].id,
-                hallId: halls[0].id,
-                time: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 16, 0), // Tomorrow at 16:00
-                price: 13.5,
-            },
-        }),
-        prisma.showtime.create({
-            data: {
-                movieId: movies[3].id,
-                hallId: halls[1].id,
-                time: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 19, 0), // Tomorrow at 19:00
-                price: 16.0,
-            },
-        }),
-        // Next week
-        prisma.showtime.create({
-            data: {
-                movieId: movies[4].id,
-                hallId: halls[0].id,
-                time: new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 20, 0), // Next week same day at 20:00
-                price: 14.0,
-            },
-        }),
-    ]);
+    const SHOWTIME_CONFIG = [
+        { time: '14:00', price: 12.5 },  // Matinee
+        { time: '17:30', price: 15.0 },  // Early evening
+        { time: '20:00', price: 18.0 },  // Prime time
+        { time: '22:30', price: 15.0 }   // Late night
+    ];
 
+    const MOVIES_PER_DAY = 2;  // How many different movies to show each day
+    const DAYS_TO_SCHEDULE = 7; // Schedule for next 7 days
+
+    async function createWeeklyShowtimes() {
+        // Get available movies and halls
+        const movies = await prisma.movie.findMany({
+            take: MOVIES_PER_DAY * 2, // Get enough movies for rotation
+            orderBy: { releaseDate: 'desc' }
+        });
+
+        const halls = await prisma.hall.findMany();
+
+        if (movies.length === 0 || halls.length === 0) {
+            throw new Error('Need at least one movie and hall to create showtimes');
+        }
+
+        const now = new Date();
+        const showtimes = [];
+
+        // Create showtimes for each day
+        for (let dayOffset = 0; dayOffset < DAYS_TO_SCHEDULE; dayOffset++) {
+            const currentDate = new Date(now);
+            currentDate.setDate(now.getDate() + dayOffset);
+
+            // Reset time to midnight for date operations
+            currentDate.setHours(0, 0, 0, 0);
+
+            // Alternate movies between days
+            const movieOffset = dayOffset % 2;
+
+            // Create showtimes for each time slot
+            for (const [slotIndex, slot] of SHOWTIME_CONFIG.entries()) {
+                // Alternate halls for each time slot
+                const hallIndex = slotIndex % halls.length;
+                const movieIndex = (movieOffset + slotIndex) % movies.length;
+
+                const [hours, minutes] = slot.time.split(':').map(Number);
+                const showtimeDate = new Date(currentDate);
+                showtimeDate.setHours(hours, minutes);
+
+                // Check if hall is available (optional)
+                const conflictingShowtime = await prisma.showtime.findFirst({
+                    where: {
+                        hallId: halls[hallIndex].id,
+                        time: {
+                            // 30 minutes buffer between showtimes
+                            gte: new Date(showtimeDate.getTime() - 30 * 60000),
+                            lte: new Date(showtimeDate.getTime() + 30 * 60000)
+                        }
+                    }
+                });
+
+                if (!conflictingShowtime) {
+                    const showtime = await prisma.showtime.create({
+                        data: {
+                            movieId: movies[movieIndex].id,
+                            hallId: halls[hallIndex].id,
+                            time: showtimeDate,
+                            price: slot.price
+                        }
+                    });
+                    showtimes.push(showtime);
+                }
+            }
+        }
+
+        return showtimes;
+    }
+
+    const showtimes = await createWeeklyShowtimes();
     console.log(`Created ${showtimes.length} showtimes`);
-
-    // Create some favorites
-    await Promise.all([
-        prisma.favorite.create({
-            data: {
-                userId: users[0].id,
-                movieId: movies[0].id,
-            },
-        }),
-        prisma.favorite.create({
-            data: {
-                userId: users[0].id,
-                movieId: movies[2].id,
-            },
-        }),
-        prisma.favorite.create({
-            data: {
-                userId: users[1].id,
-                movieId: movies[1].id,
-            },
-        }),
-        prisma.favorite.create({
-            data: {
-                userId: users[2].id,
-                movieId: movies[3].id,
-            },
-        }),
-    ]);
 
     console.log('Created some favorite movie relationships');
 

@@ -7,7 +7,7 @@ interface CreateBookingParams {
   seatIds: number[];
 }
 
-export const createBooking = async ({ userId, showtimeId, seatIds }: CreateBookingParams) => {
+export async function createBooking  ({ userId, showtimeId, seatIds }: CreateBookingParams)  {
   return await prisma.$transaction(async (tx) => {
     // Verify seats are available
     const occupiedSeats = await tx.booking.findMany({

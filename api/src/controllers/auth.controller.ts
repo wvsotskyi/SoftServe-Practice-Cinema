@@ -1,16 +1,16 @@
 import { Request, Response } from 'express';
-import { 
-  registerUser, 
-  loginUser, 
+import {
+  registerUser,
+  loginUser,
   refreshAccessToken,
   logoutUser
 } from '@services/auth.service.js';
 import { APIResponse } from '@utils/apiResponse.js';
 
-export const register = async (req: Request, res: Response) => {
+export async function register(req: Request, res: Response) {
   try {
     const { email, password, name } = req.body;
-    
+
     if (!email || !password) {
       return APIResponse(res, {
         status: 400,
@@ -19,7 +19,7 @@ export const register = async (req: Request, res: Response) => {
     }
 
     const user = await registerUser(email, password, name);
-    
+
     return APIResponse(res, {
       status: 201,
       message: 'User registered successfully',
@@ -33,10 +33,10 @@ export const register = async (req: Request, res: Response) => {
   }
 };
 
-export const login = async (req: Request, res: Response) => {
+export async function login(req: Request, res: Response) {
   try {
     const { email, password } = req.body;
-    
+
     if (!email || !password) {
       return APIResponse(res, {
         status: 400,
@@ -45,7 +45,7 @@ export const login = async (req: Request, res: Response) => {
     }
 
     const { user, tokens } = await loginUser(email, password);
-    
+
     // Set refresh token as HTTP-only cookie
     res.cookie('refreshToken', tokens.refreshToken, {
       httpOnly: true,
@@ -70,10 +70,10 @@ export const login = async (req: Request, res: Response) => {
   }
 };
 
-export const refreshToken = async (req: Request, res: Response) => {
+export async function refreshToken(req: Request, res: Response) {
   try {
     const refreshToken = req.cookies.refreshToken;
-    
+
     if (!refreshToken) {
       return APIResponse(res, {
         status: 401,
@@ -82,7 +82,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     }
 
     const { accessToken, user } = await refreshAccessToken(refreshToken);
-    
+
     return APIResponse(res, {
       status: 200,
       message: 'Token refreshed successfully',
@@ -99,7 +99,7 @@ export const refreshToken = async (req: Request, res: Response) => {
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
+export async function logout  (req: Request, res: Response)  {
   try {
     const sessionId = req.user?.sessionId;
     const refreshToken = req.cookies.refreshToken;
@@ -110,7 +110,7 @@ export const logout = async (req: Request, res: Response) => {
 
     // Clear refresh token cookie
     res.clearCookie('refreshToken');
-    
+
     return APIResponse(res, {
       status: 200,
       message: 'Logout successful'
