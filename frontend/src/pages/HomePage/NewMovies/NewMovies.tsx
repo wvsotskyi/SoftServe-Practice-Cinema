@@ -27,7 +27,7 @@ export function NewMovies() {
       const movies = response.data.data.slice(0, 25);
       setNewMovies(movies);
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
   };
 

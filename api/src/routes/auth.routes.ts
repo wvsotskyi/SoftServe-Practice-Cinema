@@ -3,8 +3,10 @@ import {
   register, 
   login, 
   refreshToken, 
-  logout 
+  logout, 
+  getCurrentUser
 } from '@controllers/auth.controller.js';
+import { authenticated } from '@middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -130,4 +132,29 @@ router.post('/logout', async (req, res, next) => {
     }
   });
 
+/**
+ * @swagger
+ * /auth/me:
+ *   get:
+ *     summary: Get current user info
+ *     tags: [Authentication]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Current user info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/me', authenticated(), async (req, res, next) => {
+  try {
+    await getCurrentUser(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
 export default router;

@@ -2,18 +2,20 @@ import { createBrowserRouter } from "react-router-dom";
 import { MainLayout } from "../components/layouts/MainLayout";
 import { HomePage } from "../pages/HomePage/HomePage";
 import { MoviePage } from "../pages/MoviePage/MoviePage";
-import Register from "../pages/AuthPage/Register";
-import Login from "../pages/AuthPage/Login";
-import AdminLayout from "../pages/AdminPage/AdminLayout";
-import AddMovie from "../pages/AdminPage/AddMovie";
-import AddSession from "../pages/AdminPage/AddSession";
+import { AddSession } from "../pages/AdminPage/AddSession";
+import { AddMovie } from "../pages/AdminPage/AddMovie";
+import { AdminLayout } from "../pages/AdminPage/AdminLayout";
+import { Login } from "../pages/AuthPage/Login";
+import { Register } from "../pages/AuthPage/Register";
+import { AuthRoute } from "../components/Routes/AuthRoute";
+import { AdminRoute } from "../components/Routes/AdminRoute";
 
 export const router = createBrowserRouter([
   {
     element: <MainLayout />,
     children: [
       {
-        path:"*",
+        path: "*",
         element: <h1>Page not found</h1>
       },
       {
@@ -26,25 +28,44 @@ export const router = createBrowserRouter([
       },
       {
         path: "/register",
-        element: <Register />,
+        element: (
+          <AuthRoute>
+            <Register />
+          </AuthRoute>
+        ),
       },
       {
         path: "/login",
-        element: <Login />,
+        element: (
+          <AuthRoute>
+            <Login />
+          </AuthRoute>
+        ),
       },
       {
         path: "/admin",
-        element: <AdminLayout/>,
+        element: (
+          <AdminRoute>
+            <AdminLayout />
+          </AdminRoute>
+        ),
       },
       {
         path: "/admin-add-movie",
-        element: <AddMovie/>,
+        element: (
+          <AdminRoute>
+            <AddMovie />
+          </AdminRoute>
+        ),
       },
       {
         path: "/admin-add-session",
-        element: <AddSession/>,
+        element: (
+          <AdminRoute>
+            <AddSession />
+          </AdminRoute>
+        ),
       },
-
     ],
   },
 ]);
