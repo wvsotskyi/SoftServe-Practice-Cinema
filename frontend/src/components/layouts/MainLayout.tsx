@@ -11,7 +11,7 @@ export function MainLayout() {
   return (
     <div className="app">
       <header>
-        <Navbar navItems={navItems}></Navbar>
+        <Navbar></Navbar>
       </header>
       <main>
         <Outlet />
