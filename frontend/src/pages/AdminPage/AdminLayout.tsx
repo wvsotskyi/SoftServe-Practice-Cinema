@@ -2,7 +2,7 @@ import { Outlet, NavLink, useNavigate } from "react-router-dom";
 import { FaHome, FaPlus, FaVideo } from "react-icons/fa";
 import { FiLogOut } from "react-icons/fi";
 
-const AdminLayout = () => {
+export function AdminLayout() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -64,6 +64,4 @@ const AdminLayout = () => {
       </main>
     </div>
   );
-};
-
-export default AdminLayout;
+}
