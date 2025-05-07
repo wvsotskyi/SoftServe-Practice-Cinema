@@ -52,19 +52,19 @@ export function MoviePage() {
 
   if (loading) {
     return (
-      <div className="text-white text-center py-8 pt-16">Завантаження...</div>
+      <div className="text-white text-center py-8 pt-20">Завантаження...</div>
     );
   }
 
   if (error) {
     return (
-      <div className="text-white text-center py-8 pt-16">Помилка: {error}</div>
+      <div className="text-white text-center py-8 pt-20">Помилка: {error}</div>
     );
   }
 
   if (!movieData) {
     return (
-      <div className="text-white text-center py-8 pt-16">Фільм не знайдено</div>
+      <div className="text-white text-center py-8 pt-20">Фільм не знайдено</div>
     );
   }
 
@@ -107,7 +107,7 @@ export function MoviePage() {
                 <h1 className="font-mono font-bold text-[40px] md:text-[80px] leading-none tracking-normal break-words max-w-[70%]">
                   {movieData.title}
                 </h1>
-                <FavoriteButton />
+                <FavoriteButton movie={movieData} />
               </div>
               <MovieRating voteAverage={movieData.voteAverage || 0} />
               <div className="flex flex-wrap gap-2 mt-4">
