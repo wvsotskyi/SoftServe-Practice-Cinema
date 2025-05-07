@@ -74,7 +74,7 @@ export function MoviePage() {
         <MovieTrailer movie={movieData} closeTrailer={closeTrailer} />
       )}
       <div
-        className="min-h-screen bg-cover bg-center font-mono font-bold text-lg leading-none tracking-normal pt-14"
+        className="min-h-screen bg-cover bg-center font-mono font-bold text-lg leading-none tracking-normal pt-20"
         style={{
           backgroundImage: `url(${getFullImageUrl(movieData.backdropPath)})`,
         }}

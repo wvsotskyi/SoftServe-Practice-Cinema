@@ -20,9 +20,8 @@ export function Navbar() {
   };
 
   const mobileNavLinks = (
-    <div className="flex flex-col gap-4 px-6 py-4 bg-[#1C1B20]">
+    <div className="flex flex-col gap-4 px-6 py-4">
       <NavLink to="/" onClick={() => setIsOpen(false)} className="text-white hover:text-red-600">Головна</NavLink>
-      <NavLink to="/now-showing" onClick={() => setIsOpen(false)} className="text-white hover:text-red-600">Зараз в кіно</NavLink>
       <NavLink to="/favorites" onClick={() => setIsOpen(false)} className="text-white hover:text-red-600">Обране</NavLink>
       <NavLink to="/sessions" onClick={() => setIsOpen(false)} className="text-white hover:text-red-600">Сеанси</NavLink>
       {user?.role === "ADMIN" && (
@@ -46,11 +45,11 @@ export function Navbar() {
   );
 
   return (
-    <div className="bg-[#1E1E1E] shadow-md top-0 z-20">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-[#6F6C6CB2] backdrop-blur-sm">
       <div className="container mx-auto py-4 px-6 flex justify-between items-center">
         <Link to="/">
           <img
-            src="svg/logo.svg"
+            src="/svg/logo.svg"
             alt="logo"
             className="w-40 h-12 object-contain"
           />
@@ -63,12 +62,6 @@ export function Navbar() {
               className="text-white hover:text-red-600 transition-all no-underline"
             >
               Головна
-            </NavLink>
-            <NavLink
-              to="/now-showing"
-              className="text-white hover:text-red-600 transition-all no-underline"
-            >
-              Зараз в кіно
             </NavLink>
             <NavLink
               to="/favorites"

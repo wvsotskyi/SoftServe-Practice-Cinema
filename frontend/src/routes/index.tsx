@@ -5,6 +5,7 @@ import { MoviePage } from "../pages/MoviePage/MoviePage";
 import { AddSession } from "../pages/AdminPage/AddSession";
 import { AddMovie } from "../pages/AdminPage/AddMovie";
 import { AdminLayout } from "../pages/AdminPage/AdminLayout";
+import { AdminHome } from "../pages/AdminPage/AdminHome";
 import { Login } from "../pages/AuthPage/Login";
 import { Register } from "../pages/AuthPage/Register";
 import { AuthRoute } from "../components/Routes/AuthRoute";
@@ -49,23 +50,21 @@ export const router = createBrowserRouter([
             <AdminLayout />
           </AdminRoute>
         ),
-      },
-      {
-        path: "/admin-add-movie",
-        element: (
-          <AdminRoute>
-            <AddMovie />
-          </AdminRoute>
-        ),
-      },
-      {
-        path: "/admin-add-session",
-        element: (
-          <AdminRoute>
-            <AddSession />
-          </AdminRoute>
-        ),
-      },
+        children: [
+            {
+            path: "",
+            element: <AdminHome />,
+          },
+          {
+            path: "add-movie",
+            element: <AddMovie />,
+          },
+          {
+            path: "add-session",
+            element: <AddSession />,
+          },
+        ]
+      }
     ],
   },
 ]);

@@ -34,13 +34,13 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-[#1E1E1E] flex items-start justify-center px-6 sm:px-8 pt-10">
+    <div className="min-h-screen bg-[#1E1E1E] flex items-start justify-center px-6 sm:px-8 pt-30">
       <form 
         onSubmit={handleSubmit}
         className="w-full max-w-md sm:max-w-lg md:w-3/5 2xl:w-2/5 flex flex-col gap-6 p-8 sm:p-12 bg-[#1C1B20] rounded-lg border border-[#A9A9A9]"
       >
         <img
-          src="/images/logo2.png"
+          src="/svg/logo.svg"
           alt="logo"
           className="w-full h-14 object-contain mb-4"
         />
