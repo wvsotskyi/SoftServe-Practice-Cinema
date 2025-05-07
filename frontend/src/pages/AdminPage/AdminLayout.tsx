@@ -17,7 +17,7 @@ export function AdminLayout() {
   return (
     <div className="min-h-screen bg-[#0F0F0F] text-white flex flex-col sm:flex-row">
       {/* Desktop Sidebar */}
-      <aside className="hidden sm:block w-64 bg-[#1C1B20] p-6">
+      <aside className="hidden sm:block w-64 bg-[#1C1B20] p-6 mt-20">
         <nav className="flex flex-col gap-4 text-sm">
           <NavLink to="/admin" end className={linkStyle}>
             <FaHome /> Головна
@@ -38,7 +38,7 @@ export function AdminLayout() {
       </aside>
 
       {/* Mobile Navigation */}
-      <div className="sm:hidden p-4 bg-[#1C1B20] sticky top-16 z-10">
+      <div className="sm:hidden p-4 bg-[#1C1B20] sticky top-20 z-10">
         <div className="grid grid-cols-2 gap-4">
           <NavLink to="/admin" end className={linkStyle}>
             <FaHome /> Головна

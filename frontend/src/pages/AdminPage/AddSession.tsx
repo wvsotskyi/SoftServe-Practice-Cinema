@@ -1,6 +1,6 @@
 export function AddSession() {
   return (
-    <div className="max-w-3xl mx-auto bg-[#1C1B20] p-8 rounded-lg border border-[#A9A9A9] text-white">
+    <div className="max-w-3xl mx-auto bg-[#1C1B20] p-8 rounded-lg border border-[#A9A9A9] text-white mt-30">
       <h2 className="text-2xl font-bold mb-6">Додати сеанс</h2>
 
       <form className="flex flex-col gap-4">

@@ -12,7 +12,7 @@ interface Movie {
   image: string;
 }
 
-const AdminHome = () => {
+export function AdminHome() {
   const [movies, setMovies] = useState<Movie[]>([]);
 
   useEffect(() => {
@@ -39,8 +39,7 @@ const AdminHome = () => {
   }, []);
 
   return (
-    <div className="flex bg-[#0F0F0F] min-h-screen text-white">
-
+    <div className="flex bg-[#0F0F0F] min-h-screen text-white mt-20">
       <main className="flex-1 p-6 space-y-6">
         {/* Cards */}
         <div className="grid md:grid-cols-3 gap-4">
@@ -101,5 +100,3 @@ const StatCard = ({ icon, label, value }: { icon: React.ReactNode; label: string
     </div>
   </div>
 );
-
-export default AdminHome;
