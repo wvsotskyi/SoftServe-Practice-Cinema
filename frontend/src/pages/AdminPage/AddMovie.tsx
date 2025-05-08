@@ -1,283 +1,119 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-interface Actor {
-  name: string;
-  role: string;
-  photo: string;
-}
-
-interface Movie {
+interface Suggestion {
+  tmdbId: number;
   title: string;
-  duration: string;
-  language: string;
-  year: string;
-  image: string;
-  description: string;
-  genre: string;
-  trailer: string;
-  cast: Actor[];
+  posterPath: string;
+  releaseDate: string;
 }
 
-const mockMovies: Movie[] = [
-  {
-    title: "Назва фільму",
-    duration: "0г 00хв",
-    language: "Мова",
-    year: "Рік",
-    image: "placeholder.jpg",
-    description: "Опис фільму буде тут...",
-    genre: "Жанр",
-    trailer: "https://www.youtube.com/embed/placeholder",
-    cast: [
-      {
-        name: "Ім'я актора",
-        role: "Роль",
-        photo: "actor_placeholder.jpg",
-      },
-    ],
-  },
-];
-
-export function AddMovie() {
+const AddMovie = () => {
   const [search, setSearch] = useState("");
-  const [suggestions, setSuggestions] = useState<Movie[]>([]);
-  const [movie, setMovie] = useState<Movie | null>(null);
+  const [error, setError] = useState("");
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [searchPerformed, setSearchPerformed] = useState(false); // Флаг, который отслеживает, был ли выполнен поиск
+  const navigate = useNavigate();
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearch(value);
-    const filtered = mockMovies.filter((m) =>
-      m.title.toLowerCase().includes(value.toLowerCase())
+  const fetchSuggestions = async (query: string) => {
+    const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
+    if (!accessToken) {
+      setError("Не вдалося отримати токен.");
+      return;
+    }
+
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/tmdb/search?query=${query}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
     );
-    setSuggestions(filtered);
+    const data = await response.json();
+    const suggestions = data.data;
+    setSuggestions(suggestions);
+    setSearchPerformed(true); // Отмечаем, что поиск был выполнен
   };
 
-  const handleSelectMovie = (m: Movie) => {
-    setMovie({ ...m });
-    setSearch(m.title);
-    setSuggestions([]);
-  };
-
-  const handleFieldChange = (field: keyof Movie, value: string) => {
-    if (movie) {
-      setMovie({ ...movie, [field]: value });
+  const handleAddMovie = async (tmdbId: number) => {
+    const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
+    if (!accessToken) {
+      setError("Не вдалося отримати токен.");
+      return;
     }
-  };
 
-  const handleActorChange = (
-    index: number,
-    field: keyof Actor,
-    value: string
-  ) => {
-    if (movie) {
-      const updatedCast = [...movie.cast];
-      updatedCast[index] = { ...updatedCast[index], [field]: value };
-      setMovie({ ...movie, cast: updatedCast });
-    }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (movie) {
-      console.log("Збережений фільм:", movie);
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/api/tmdb/movies`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ tmdbId }),
+      }
+    );
+    if (response.ok) {
+      navigate("/admin");
+    } else {
+      setError("Помилка при додаванні фільму");
     }
   };
 
   return (
     <div className="max-w-5xl mx-auto p-6 bg-[#1C1B20] text-white rounded-lg">
       <h2 className="text-2xl font-bold mb-4">Додати фільм</h2>
-
+      {error && <p className="text-red-500 mb-4">{error}</p>}
       <div className="mb-4 flex gap-2">
         <input
           type="text"
           placeholder="Введіть назву фільму"
           value={search}
-          onChange={handleSearchChange}
+          onChange={(e) => setSearch(e.target.value)}
           className="flex-1 p-2 rounded text-gray-500"
         />
         <button
-          onClick={() => {
-            const found = mockMovies.find(
-              (m) => m.title.toLowerCase() === search.toLowerCase()
-            );
-            if (found) handleSelectMovie(found);
-          }}
+          onClick={() => fetchSuggestions(search)}
           className="bg-[#FF4D4D] px-4 py-2 rounded hover:bg-[#ff6666]"
         >
           Знайти
         </button>
       </div>
 
-      {suggestions.length > 0 && (
+      {suggestions.length ? (
         <ul className="bg-white text-black rounded shadow mb-4">
           {suggestions.map((s) => (
             <li
               key={s.title}
               className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-              onClick={() => handleSelectMovie(s)}
+              onClick={() => {
+                if (
+                  window.confirm(`Ви впевнені, що хочете додати "${s.title}"?`)
+                ) {
+                  handleAddMovie(s.tmdbId);
+                }
+              }}
             >
-              {s.title}
+              <div className="flex items-center gap-2 justify-between">
+                <div>
+                  <img
+                    src={`https://image.tmdb.org/t/p/w500${s.posterPath}`}
+                    alt={s.title}
+                    className="w-10 h-10 rounded-full inline-block"
+                  />
+                  <span className="px-2">{s.title}</span>
+                </div>
+                <p>{s.releaseDate}</p>
+              </div>
             </li>
           ))}
         </ul>
-      )}
-
-      {movie && (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block mb-1">Назва:</label>
-              <input
-                type="text"
-                value={movie.title}
-                onChange={(e) => handleFieldChange("title", e.target.value)}
-                className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Тривалість:</label>
-              <input
-                type="text"
-                value={movie.duration}
-                onChange={(e) => handleFieldChange("duration", e.target.value)}
-                className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-              />
-            </div>
-
-            <div>
-              <label className="block mb-1">Мова фільму:</label>
-              <input
-                type="text"
-                value={movie.language}
-                onChange={(e) => handleFieldChange("language", e.target.value)}
-                className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Рік випуску:</label>
-              <input
-                type="text"
-                value={movie.year}
-                onChange={(e) => handleFieldChange("year", e.target.value)}
-                className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div>
-              <label className="block mb-1">Постер:</label>
-              <img
-                src={`/images/${movie.image}`}
-                alt={movie.title}
-                className="w-48 h-auto mb-2 rounded"
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Опис сюжету фільму:</label>
-              <textarea
-                value={movie.description}
-                onChange={(e) =>
-                  handleFieldChange("description", e.target.value)
-                }
-                className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <div className="mb-4">
-              <label className="block mb-1 text-gray-300">Жанр</label>
-              <div className="relative">
-                <select
-                  name="genre"
-                  className="w-full appearance-none p-3 pr-10 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-                >
-                  <option value="Бойовик">Бойовик</option>
-                  <option value="Комедія">Комедія</option>
-                  <option value="Драма">Драма</option>
-                  <option value="Фантастика">Фантастика</option>
-                </select>
-
-                <div className="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M19 9l-7 7-7-7"
-                    />
-                  </svg>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <label className="block mb-1">Трейлер (URL YouTube):</label>
-              <input
-                type="text"
-                value={movie.trailer}
-                onChange={(e) => handleFieldChange("trailer", e.target.value)}
-                className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-              />
-            </div>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Актори</h3>
-
-            {movie.cast.map((actor, index) => (
-              <div key={index} className="mb-6 flex items-center space-x-4">
-                <div className="w-24 h-32">
-                  <img
-                    src={actor.photo || "/images/placeholder.jpg"} // Заглушка
-                    alt="Актор"
-                    className="w-full h-full object-cover rounded-lg bg-gray-300"
-                  />
-                </div>
-
-                <div className="flex space-x-4 w-full">
-                  <div className="w-1/2">
-                    <label className="block mb-1">Ім’я:</label>
-                    <input
-                      type="text"
-                      value={actor.name}
-                      onChange={(e) =>
-                        handleActorChange(index, "name", e.target.value)
-                      }
-                      className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-                    />
-                  </div>
-
-                  <div className="w-1/2">
-                    <label className="block mb-1">Роль:</label>
-                    <input
-                      type="text"
-                      value={actor.role}
-                      onChange={(e) =>
-                        handleActorChange(index, "role", e.target.value)
-                      }
-                      className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-[#FF4D4D] hover:bg-[#ff6666] text-white py-3 rounded mt-6 font-semibold"
-          >
-            Опублікувати
-          </button>
-        </form>
+      ) : (
+        searchPerformed && <p>Нічого не знайдено</p> // Показываем сообщение только если был выполнен поиск
       )}
     </div>
   );
-}
+};
+
+export default AddMovie;

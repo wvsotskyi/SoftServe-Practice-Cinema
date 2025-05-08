@@ -3,12 +3,14 @@ import { MainLayout } from "../components/layouts/MainLayout";
 import { HomePage } from "../pages/HomePage/HomePage";
 import { MoviePage } from "../pages/MoviePage/MoviePage";
 import { AddSession } from "../pages/AdminPage/AddSession";
-import { AddMovie } from "../pages/AdminPage/AddMovie";
+import AddMovie from "../pages/AdminPage/AddMovie";
 import { AdminLayout } from "../pages/AdminPage/AdminLayout";
 import { Login } from "../pages/AuthPage/Login";
 import { Register } from "../pages/AuthPage/Register";
 import { AuthRoute } from "../components/Routes/AuthRoute";
 import { AdminRoute } from "../components/Routes/AdminRoute";
+import AdminHome from "../pages/AdminPage/AdminHome";
+import EditMovie from "../pages/AdminPage/EditMovie";
 
 export const router = createBrowserRouter([
   {
@@ -44,27 +46,33 @@ export const router = createBrowserRouter([
       },
       {
         path: "/admin",
-        element: (
-          <AdminRoute>
-            <AdminLayout />
-          </AdminRoute>
-        ),
+        element: <AdminLayout />,
+        children: [
+          {
+            index: true,
+            element: <AdminHome />,
+          },
+          {
+            path: "add-movie",
+            element: <AddMovie />,
+          },
+          {
+            path: "add-session",
+            element: <AddSession />,
+          },
+          {
+            path: "edit-movie",
+            element: <EditMovie />,
+          },
+        ],
       },
       {
         path: "/admin-add-movie",
-        element: (
-          <AdminRoute>
-            <AddMovie />
-          </AdminRoute>
-        ),
+        element: <AddMovie />,
       },
       {
         path: "/admin-add-session",
-        element: (
-          <AdminRoute>
-            <AddSession />
-          </AdminRoute>
-        ),
+        element: <AddSession />,
       },
     ],
   },
