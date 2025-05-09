@@ -7,7 +7,7 @@ interface CreateBookingParams {
   seatIds: number[];
 }
 
-export const createBooking = async ({ userId, showtimeId, seatIds }: CreateBookingParams) => {
+export async function createBooking({ userId, showtimeId, seatIds }: CreateBookingParams) {
   return await prisma.$transaction(async (tx) => {
     // Verify seats are available
     const occupiedSeats = await tx.booking.findMany({
@@ -57,7 +57,7 @@ export const createBooking = async ({ userId, showtimeId, seatIds }: CreateBooki
   });
 };
 
-export const getBookingsByUser = async (userId: number) => {
+export async function getBookingsByUser(userId: number) {
   return await prisma.booking.findMany({
     where: { userId },
     include: {
@@ -68,10 +68,10 @@ export const getBookingsByUser = async (userId: number) => {
   });
 };
 
-export const updateBooking = async (bookingId: number, userId: number, updates: {
+export async function updateBooking(bookingId: number, userId: number, updates: {
   seatIds?: number[];
   status?: 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
-}) => {
+})  {
   return await prisma.$transaction(async (tx) => {
     // Verify booking exists and belongs to user
     const booking = await tx.booking.findUnique({
@@ -91,8 +91,8 @@ export const updateBooking = async (bookingId: number, userId: number, updates: 
           seats: {
             some: {
               id: { in: updates.seatIds }
-          }
-        },
+            }
+          },
           NOT: { id: bookingId }
         },
         select: { seats: { select: { id: true } } }
@@ -120,7 +120,7 @@ export const updateBooking = async (bookingId: number, userId: number, updates: 
   });
 };
 
-export const cancelBooking = async (bookingId: number, userId: number) => {
+export async function cancelBooking  (bookingId: number, userId: number)  {
   return await prisma.booking.updateMany({
     where: {
       id: bookingId,

@@ -1,17 +1,35 @@
+import { useEffect, useState } from "react";
 import { MovieWithRelations } from "../../types/prisma";
 import css from "./MovieTrailer.module.css";
 
 interface MovieTrailerProps {
   movie: MovieWithRelations;
-  width: number | string;
-  height: number | string;
   closeTrailer: () => void;
 }
 
-export function MovieTrailer({ movie, width, height, closeTrailer }: MovieTrailerProps) {
+export function MovieTrailer({ movie, closeTrailer }: MovieTrailerProps) {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    document.body.style.overflow = "hidden";
+    window.addEventListener("resize", handleResize);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const width = isMobile ? 320 : 640;
+  const height = isMobile ? 180 : 360;
+
   const handleOverlayClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (
-      (e.target as HTMLElement).classList.contains(css["trailer-overlay-wrap"]) ||
+      (e.target as HTMLElement).classList.contains(
+        css["trailer-overlay-wrap"]
+      ) ||
       (e.target as HTMLElement).classList.contains(css["trailer-holder"])
     ) {
       closeTrailer();
@@ -40,7 +58,8 @@ export function MovieTrailer({ movie, width, height, closeTrailer }: MovieTraile
             «{movie.title}»{" "}
             <small>
               (оригінальна назва: "{movie.originalTitle}",{" "}
-                {movie.releaseDate ? String(movie.releaseDate).split("-")[0] : ""})
+              {movie.releaseDate ? String(movie.releaseDate).split("-")[0] : ""}
+              )
             </small>
           </div>
           <div className={css["trailer-description"]}>{movie.overview}</div>

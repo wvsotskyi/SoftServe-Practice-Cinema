@@ -1,69 +1,136 @@
-import { Link, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { FaSearch, FaBell, FaSignOutAlt } from "react-icons/fa";
+import { CgUser } from "react-icons/cg";
+import { HiMenuAlt3, HiX } from "react-icons/hi";
+import { useAuth } from "../../context/AuthContext";
 
-interface NavItem {
-  name: string;
-  path: string;
-}
+export function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { user, logout, isLoading } = useAuth();
+  const navigate = useNavigate();
 
-interface NavBarProps {
-  navItems: NavItem[];
-}
-
-export function Navbar({ navItems }: NavBarProps) {
-  const location = useLocation();
-
-  const getActiveTab = () => {
-    const currentItem = navItems.find(
-      (item) =>
-        location.pathname === item.path ||
-        (item.path !== "/" && location.pathname.startsWith(item.path))
-    );
-    return currentItem?.name || navItems[0]?.name;
+  const handleLogout = async () => {
+    try {
+      await logout();
+      navigate("/");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
   };
 
-  return (
-    <nav className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-2 bg-gray-800/70 backdrop-blur-sm shadow-md">
-      <div className="flex items-center">
-        <img src="/svg/logo.svg" alt="LUMIX" className="h-10 p-0 mr-36" />
+  const mobileNavLinks = (
+    <div className="flex flex-col gap-4 px-6 py-4">
+      <NavLink to="/" onClick={() => setIsOpen(false)} className="text-white hover:text-red-600">Головна</NavLink>
+      <NavLink to="/favorites" onClick={() => setIsOpen(false)} className="text-white hover:text-red-600">Обране</NavLink>
+      <NavLink to="/sessions" onClick={() => setIsOpen(false)} className="text-white hover:text-red-600">Сеанси</NavLink>
+      {user?.role === "ADMIN" && (
+        <NavLink to="/admin" onClick={() => setIsOpen(false)} className="text-white hover:text-[#FF4500]">Адмін</NavLink>
+      )}
+      {user ? (
+        <button 
+          onClick={() => {
+            setIsOpen(false);
+            handleLogout();
+          }}
+          className="text-white hover:text-red-600 text-left flex items-center gap-2"
+          disabled={isLoading}
+        >
+          <FaSignOutAlt /> Вийти
+        </button>
+      ) : (
+        <NavLink to="/login" onClick={() => setIsOpen(false)} className="text-white hover:text-red-600">Увійти</NavLink>
+      )}
+    </div>
+  );
 
-        <div className="hidden md:flex items-center space-x-8">
-          {navItems.map((item) => (
-            <Link
-              key={item.name}
-              to={item.path}
-              className={`text-sm font-medium ${
-                getActiveTab() === item.name ? "text-red-400" : "text-white"
-              } hover:text-red-300 transition-colors`}
+  return (
+    <div className="fixed top-0 left-0 right-0 z-50 bg-[#6F6C6CB2] backdrop-blur-sm">
+      <div className="container mx-auto py-4 px-6 flex justify-between items-center">
+        <Link to="/">
+          <img
+            src="/svg/logo.svg"
+            alt="logo"
+            className="w-40 h-12 object-contain"
+          />
+        </Link>
+
+        <div className="hidden md:flex items-center">
+          <div className="flex gap-6 ml-10">
+            <NavLink
+              to="/"
+              className="text-white hover:text-red-600 transition-all no-underline"
             >
-              {item.name}
-            </Link>
-          ))}
+              Головна
+            </NavLink>
+            <NavLink
+              to="/favorites"
+              className="text-white hover:text-red-600 transition-all no-underline"
+            >
+              Обране
+            </NavLink>
+            <NavLink
+              to="/sessions"
+              className="text-white hover:text-red-600 transition-all no-underline"
+            >
+              Сеанси
+            </NavLink>
+          </div>
+
+          {user?.role === "ADMIN" && (
+            <div className="ml-6">
+              <NavLink
+                to="/admin"
+                className="text-white hover:text-[#FF4500] transition-all no-underline"
+              >
+                Адмін
+              </NavLink>
+            </div>
+          )}
+        </div>
+
+        <div className="flex gap-6 items-center ml-auto">
+          <div className="text-white cursor-pointer hover:text-red-600 transition-all">
+            <FaSearch size={20} />
+          </div>
+          <div className="text-white cursor-pointer hover:text-red-600 transition-all hidden sm:inline">
+            <FaBell size={20} />
+          </div>
+          
+          {user ? (
+            <div className="flex items-center gap-4">
+              <span className="text-white hidden sm:inline">{user.name || user.email}</span>
+              <button 
+                onClick={handleLogout}
+                className="text-white hover:text-red-600 transition-all flex items-center gap-1"
+                disabled={isLoading}
+              >
+                <FaSignOutAlt size={20} />
+                <span className="hidden sm:inline">Вийти</span>
+              </button>
+            </div>
+          ) : (
+            <div className="text-white cursor-pointer hover:text-red-600 transition-all">
+              <NavLink to="/login">
+                <CgUser size={24} />
+              </NavLink>
+            </div>
+          )}
+
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="md:hidden text-white"
+          >
+            {isOpen ? <HiX size={24} /> : <HiMenuAlt3 size={24} />}
+          </button>
         </div>
       </div>
 
-      <div className="flex items-center space-x-4">
-        <button className="text-white hover:text-gray-300">
-          <img
-            src="/svg/search.svg"
-            alt="Search"
-            className="h-5 w-5 brightness-0 invert"
-          />
-        </button>
-        <button className="text-white hover:text-gray-300">
-          <img
-            src="/svg/bell.svg"
-            alt="Notifications"
-            className="h-5 w-5 brightness-0 invert"
-          />
-        </button>
-        <button className="text-white hover:text-gray-300">
-          <img
-            src="/svg/user.svg"
-            alt="Profile"
-            className="h-5 w-5 brightness-0 invert"
-          />
-        </button>
-      </div>
-    </nav>
+      {isOpen && (
+        <div className="md:hidden">
+          {mobileNavLinks}
+        </div>
+      )}
+    </div>
   );
 }

@@ -1,7 +1,7 @@
 import prisma from '@utils/db.js';
 import { Favorite, Movie } from '../../generated/prisma/default.js';
 
-export const addFavorite = async (userId: number, movieId: number): Promise<Favorite & { movie: Movie }> => {
+export async function addFavorite(userId: number, movieId: number): Promise<Favorite & { movie: Movie }> {
   return await prisma.favorite.create({
     data: {
       userId,
@@ -13,7 +13,7 @@ export const addFavorite = async (userId: number, movieId: number): Promise<Favo
   });
 };
 
-export const removeFavorite = async (userId: number, movieId: number): Promise<void> => {
+export async function removeFavorite(userId: number, movieId: number): Promise<void> {
   await prisma.favorite.delete({
     where: {
       userId_movieId: {
@@ -24,7 +24,7 @@ export const removeFavorite = async (userId: number, movieId: number): Promise<v
   });
 };
 
-export const getUserFavorites = async (userId: number): Promise<(Favorite & { movie: Movie })[]> => {
+export async function getUserFavorites(userId: number): Promise<(Favorite & { movie: Movie })[]> {
   return await prisma.favorite.findMany({
     where: { userId },
     include: { movie: true },
@@ -32,7 +32,7 @@ export const getUserFavorites = async (userId: number): Promise<(Favorite & { mo
   });
 };
 
-export const isMovieFavorite = async (userId: number, movieId: number): Promise<boolean> => {
+export async function isMovieFavorite(userId: number, movieId: number): Promise<boolean> {
   const favorite = await prisma.favorite.findUnique({
     where: {
       userId_movieId: {

@@ -1,5 +1,10 @@
 import { Router } from 'express';
-import { getShowtimesController } from '@controllers/showtime.controller.js';
+import {
+  getShowtimesGroupedByMovieController,
+  getShowtimeFilterOptionsController,
+  createShowtimeController,
+} from '@controllers/showtime.controller.js';
+import { authenticated, verifyAdmin } from '@middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -7,7 +12,7 @@ const router = Router();
  * @swagger
  * /showtimes:
  *   get:
- *     summary: Get showtimes grouped by movie with filtering options
+ *     summary: Get showtimes grouped by movie with optional filters
  *     tags: [Showtimes]
  *     parameters:
  *       - in: query
@@ -15,33 +20,28 @@ const router = Router();
  *         schema:
  *           type: string
  *           format: date
- *           example: "2024-12-15"
- *         description: Filter by date (YYYY-MM-DD)
+ *         description: Filter by specific date (YYYY-MM-DD)
  *       - in: query
- *         name: startTime
+ *         name: timeRange[start]
  *         schema:
  *           type: string
- *           format: date-time
- *           example: "2024-12-15T09:00:00"
- *         description: Filter showtimes after this time
+ *           format: time
+ *         description: Start time for time range filter (HH:MM)
  *       - in: query
- *         name: endTime
+ *         name: timeRange[end]
  *         schema:
  *           type: string
- *           format: date-time
- *           example: "2024-12-15T23:00:00"
- *         description: Filter showtimes before this time
+ *           format: time
+ *         description: End time for time range filter (HH:MM)
  *       - in: query
  *         name: genreId
  *         schema:
  *           type: integer
- *           example: 1
  *         description: Filter by genre ID
  *       - in: query
  *         name: movieId
  *         schema:
  *           type: integer
- *           example: 1
  *         description: Filter by specific movie ID
  *     responses:
  *       200:
@@ -51,15 +51,48 @@ const router = Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/MovieShowtimesResponse'
- *       400:
- *         description: Bad request
+ *                 $ref: '#/components/schemas/MovieWithShowtimes'
+ *       500:
+ *         description: Internal server error
  */
 router.get('/', async (req, res, next) => {
   try {
-    await getShowtimesController(req, res);
+    await getShowtimesGroupedByMovieController(req, res);
   } catch (error) {
     next(error);
   }
 });
+
+/**
+ * @swagger
+ * /showtimes/filters:
+ *   get:
+ *     summary: Get all available filter options for showtimes
+ *     tags: [Showtimes]
+ *     responses:
+ *       200:
+ *         description: Available filter options
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ShowtimeFilterOptions'
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/filters', async (req, res, next) => {
+  try {
+    await getShowtimeFilterOptionsController(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/', authenticated(), verifyAdmin, async (req, res, next) => {
+  try {
+    await createShowtimeController(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default router;

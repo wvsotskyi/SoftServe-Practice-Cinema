@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { getAllGenres, getGenreById } from '@services/genre.service.js';
 import { APIResponse } from '@utils/apiResponse.js';
 
-export const getAllGenresController = async (req: Request, res: Response) => {
+export async function getAllGenresController(req: Request, res: Response) {
   try {
     const genres = await getAllGenres();
     return APIResponse(res, {
@@ -18,7 +18,7 @@ export const getAllGenresController = async (req: Request, res: Response) => {
   }
 };
 
-export const getGenreByIdController = async (req: Request, res: Response) => {
+export async function getGenreByIdController(req: Request, res: Response) {
   try {
     const { id } = req.params;
     const genre = await getGenreById(Number(id));
