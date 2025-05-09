@@ -62,7 +62,7 @@ const AddMovie = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6 bg-[#1C1B20] text-white rounded-lg">
+    <div className="max-w-5xl mx-auto p-6 bg-[#1C1B20] text-white rounded-lg mt-30">
       <h2 className="text-2xl font-bold mb-4">Додати фільм</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <div className="mb-4 flex gap-2">

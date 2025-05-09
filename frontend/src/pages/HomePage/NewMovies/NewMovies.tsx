@@ -198,9 +198,7 @@ export function NewMovies() {
                 <div className={css["carousel-left"]}>
                   <div className={css["carousel-left-top"]}>
                     <h1 className={css["movie-title"]}>{movie.title}</h1>
-                    {movie.voteAverage && movie.voteAverage > 0 && (
-                      <MovieRating voteAverage={movie.voteAverage} />
-                    )}
+                    <MovieRating voteAverage={movie.voteAverage || 0} />
                   </div>
                   <div className={css["carousel-left-bottom"]}>
                     {movie.runtime && movie.runtime > 0 && (

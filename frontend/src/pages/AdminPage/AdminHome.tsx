@@ -20,7 +20,7 @@ interface Genre {
   name: string;
 }
 
-const AdminHome = () => {
+export function AdminHome() {
   const [movies, setMovies] = useState<Movie[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ const AdminHome = () => {
   }, []);
 
   return (
-    <div className="flex bg-[#0F0F0F] min-h-screen text-white">
+    <div className="flex bg-[#0F0F0F] min-h-screen text-white mt-20">
       <main className="flex-1 p-6 space-y-6">
         {/* Cards */}
         <div className="grid md:grid-cols-2 gap-4">
@@ -185,5 +185,3 @@ const StatCard = ({
     </div>
   </div>
 );
-
-export default AdminHome;

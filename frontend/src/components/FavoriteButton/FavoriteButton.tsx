@@ -1,15 +1,90 @@
-import { useState } from 'react';
+import { useEffect, useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { MovieWithRelations } from "../../types/prisma";
+import { Navigate, useLocation } from "react-router-dom";
 
-export function FavoriteButton() {
-  const [isFavorite, setIsFavorite] = useState(false);
+interface FavoriteButtonProps {
+  movie: MovieWithRelations;
+  showText?: boolean;
+}
+
+export function FavoriteButton({ movie, showText = true }: FavoriteButtonProps) {
+  const { tokens, user } = useAuth();
+  const location = useLocation();
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const [redirectToLogin, setRedirectToLogin] = useState(false);
+
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (location.pathname === "/favorites") {
+        setIsFavorite(true);
+        return;
+      }  
+      if (!tokens?.accessToken || !user) return;
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_API_URL}/api/favorites/${movie.id}/check`,
+          {
+            headers: {
+              Authorization: `Bearer ${tokens.accessToken}`,
+            },
+          }
+        );
+        const data = await res.json();
+        setIsFavorite(data.data.isFavorite ?? false);
+      } catch (err) {
+        console.error("Check favorite failed", err);
+      }
+    };
+
+    checkFavorite();
+  }, [location.pathname]);
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (!tokens?.accessToken || !user) {
+      setRedirectToLogin(true);
+      return;
+    }
+
+    try {
+      if (isFavorite) {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/${movie.id}`, {
+          method: "DELETE",
+          headers: {
+            Authorization: `Bearer ${tokens.accessToken}`,
+          },
+        });
+        setIsFavorite(false);
+      } else {
+        await fetch(`${import.meta.env.VITE_API_URL}/api/favorites`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${tokens.accessToken}`,
+          },
+          body: JSON.stringify({ movieId: movie.id }),
+        });
+        setIsFavorite(true);
+      }
+    } catch (err) {
+      console.error("Toggle favorite error", err);
+    }
+  };
+
+  if (redirectToLogin) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
   return (
     <div className="flex items-center gap-2">
-      <span className="hidden md:inline text-white text-base font-medium">
-        {isFavorite ? "В обраному" : "Додати в обране"}
-      </span>
+      {showText && (
+        <span className="hidden md:inline text-white text-base font-medium">
+          {isFavorite ? "В обраному" : "Додати в обране"}
+        </span>
+      )}
       <button 
-        onClick={() => setIsFavorite(!isFavorite)}
+        onClick={toggleFavorite}
         className="p-1 border-2 border-red-500 rounded-lg text-red-500"
       >
         <svg
