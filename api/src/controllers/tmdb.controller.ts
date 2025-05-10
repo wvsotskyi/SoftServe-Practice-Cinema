@@ -1,13 +1,10 @@
 import { Request, Response } from 'express';
 import { addMovieFromTMDB, searchMoviesOnTMDB } from '@services/tmdb.service.js';
 import { APIResponse } from '@utils/apiResponse.js';
-import { verifyAdmin } from '@middlewares/auth.middleware.js';
 
 export async function searchTMDBMoviesController(req: Request, res: Response) {
   try {
     // Verify admin role
-    await verifyAdmin(req, res, () => { });
-
     const { query } = req.query;
 
     if (!query || typeof query !== 'string') {
@@ -42,9 +39,6 @@ export async function searchTMDBMoviesController(req: Request, res: Response) {
 
 export async function addMovieFromTMDBController(req: Request, res: Response) {
   try {
-    // Verify admin role
-    await verifyAdmin(req, res, () => { });
-
     const { tmdbId } = req.body;
 
     if (!tmdbId || typeof tmdbId !== 'number') {

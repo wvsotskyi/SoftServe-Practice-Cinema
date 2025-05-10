@@ -18,7 +18,7 @@
  *           type: integer
  *           example: 2
  * 
- *     Showtime:
+ *     Showtimes:
  *       type: object
  *       properties:
  *         id:
