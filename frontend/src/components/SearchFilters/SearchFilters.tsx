@@ -5,7 +5,7 @@ interface Genre {
   name: string;
 }
 
-interface FilterValues {
+export interface FilterValues {
   genres: string;
   year: string;
   ageGroup: string;
