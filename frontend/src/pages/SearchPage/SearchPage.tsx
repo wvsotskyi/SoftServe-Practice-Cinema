@@ -30,16 +30,19 @@ export function SearchPage() {
   }, [])
 
   return (
-    <div className="min-h-screen px-0 py-25 sm:py-28">
-      <div className="w-full max-w-d mx-auto px-4 mb-6">
-        <SearchBar />
+    <div className="relative min-h-screen px-0 py-20">
+
+      <div className="fixed z-50 w-full transition-all duration-300 ease-in-out bg-[#131215]">
+        <div className="w-full max-w-d px-4 sm:px-25 mb-6 pt-5">
+          <SearchBar />
+        </div>
+
+        <div className="px-4 sm:px-25 transition-all duration-300 ease-in-out">
+          <SearchFilters />
+        </div>
       </div>
 
-      <div className="w-full mb-12 sm:px-25 transition-all duration-300 ease-in-out">
-        <SearchFilters />
-      </div>
-
-      <div className="relative mx-auto w-[90%]">
+      <div className="relative pt-51 sm:pt-89 md:pt-67 xl:pt-51 mx-auto w-[90%]">
         <div className="grid justify-items-center grid-cols-[repeat(auto-fit,minmax(155px,1fr))] gap-8 md:grid-cols-[repeat(auto-fit,minmax(250px,1fr))]">
           {loading && <p className="text-center col-span-full">Loading...</p>}
           {error && <p className="text-red-500 text-center col-span-full">{error}</p>}
