@@ -1,5 +1,5 @@
+import { Genre } from '@prisma/client';
 import prisma from '@utils/db.js';
-import { Genre } from '../../generated/prisma/default.js';
 
 export async function getAllGenres(): Promise<Genre[]> {
   return await prisma.genre.findMany({

@@ -5,7 +5,7 @@ import {
     updateBookingController,
     cancelBookingController
 } from '@controllers/booking.controller.js';
-import { authenticated } from '@middlewares/auth.middleware.js';
+import { authenticate } from '@middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -35,7 +35,7 @@ const router = Router();
  *       401:
  *         description: Unauthorized
  */
-router.post('/', authenticated(), async (req, res, next) => {
+router.post('/', authenticate, async (req, res, next) => {
     try {
         await createBookingController(req, res);
     } catch (error) {

@@ -1,5 +1,5 @@
+import { Favorite, Movie } from '@prisma/client';
 import prisma from '@utils/db.js';
-import { Favorite, Movie } from '../../generated/prisma/default.js';
 
 export async function addFavorite(userId: number, movieId: number): Promise<Favorite & { movie: Movie }> {
   return await prisma.favorite.create({

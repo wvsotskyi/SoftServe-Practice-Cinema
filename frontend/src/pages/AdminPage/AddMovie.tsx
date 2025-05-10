@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 interface Suggestion {
   tmdbId: number;
@@ -8,25 +9,20 @@ interface Suggestion {
   releaseDate: string;
 }
 
-const AddMovie = () => {
+export function AddMovie() {
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [searchPerformed, setSearchPerformed] = useState(false); // Флаг, который отслеживает, был ли выполнен поиск
+  const {tokens} = useAuth();
   const navigate = useNavigate();
 
   const fetchSuggestions = async (query: string) => {
-    const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
-    if (!accessToken) {
-      setError("Не вдалося отримати токен.");
-      return;
-    }
-
     const response = await fetch(
       `${import.meta.env.VITE_API_URL}/api/tmdb/search?query=${query}`,
       {
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${tokens?.accessToken}`,
         },
       }
     );
@@ -37,7 +33,9 @@ const AddMovie = () => {
   };
 
   const handleAddMovie = async (tmdbId: number) => {
-    const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
+    const accessToken = JSON.parse(
+      localStorage.getItem("authTokens") || "{}"
+    ).accessToken;
     if (!accessToken) {
       setError("Не вдалося отримати токен.");
       return;
@@ -98,7 +96,7 @@ const AddMovie = () => {
               <div className="flex items-center gap-2 justify-between">
                 <div>
                   <img
-                    src={`https://image.tmdb.org/t/p/w500${s.posterPath}`}
+                    src={`${import.meta.env.VITE_TMDB_IMAGE_URL}/w500${s.posterPath}`}
                     alt={s.title}
                     className="w-10 h-10 rounded-full inline-block"
                   />
@@ -114,6 +112,4 @@ const AddMovie = () => {
       )}
     </div>
   );
-};
-
-export default AddMovie;
+}

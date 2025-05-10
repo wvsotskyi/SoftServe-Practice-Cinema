@@ -45,4 +45,34 @@
  *           type: array
  *           items:
  *             $ref: '#/components/schemas/ShowtimeResponse'
+ *     Showtime:
+ *       type: object
+ *       properties:
+ *         id:
+ *           type: integer
+ *         movieId:
+ *           type: integer
+ *         hallId:
+ *           type: integer
+ *         time:
+ *           type: string
+ *           format: date-time
+ *         price:
+ *           type: number
+ *         movie:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *             title:
+ *               type: string
+ *             runtime:
+ *               type: integer
+ *         hall:
+ *           type: object
+ *           properties:
+ *             id:
+ *               type: integer
+ *             name:
+ *               type: string
  */

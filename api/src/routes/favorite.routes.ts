@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import { authenticated } from '@middlewares/auth.middleware.js';
 import {
   addFavoriteController,
   removeFavoriteController,
   getFavoritesController,
   checkFavoriteController
 } from '@controllers/favorite.controller.js';
+import { authenticate } from '@middlewares/auth.middleware.js';
 
 const router = Router();
 
-router.use(authenticated());
+router.use(authenticate);
 
 /**
  * @swagger
@@ -37,7 +37,7 @@ router.use(authenticated());
  *       401:
  *         description: Unauthorized
  */
-router.post('/', authenticated(), async (req, res, next) => {
+router.post('/', authenticate, async (req, res, next) => {
     try {
         await addFavoriteController(req, res);
     } catch (error) {
@@ -69,7 +69,7 @@ router.post('/', authenticated(), async (req, res, next) => {
  *       404:
  *         description: Favorite not found
  */
-router.delete('/:movieId', authenticated(), async (req, res, next) => {
+router.delete('/:movieId', authenticate, async (req, res, next) => {
     try {
         await removeFavoriteController(req, res);
     } catch (error) {
@@ -94,7 +94,7 @@ router.delete('/:movieId', authenticated(), async (req, res, next) => {
  *       401:
  *         description: Unauthorized
  */
-router.get('/', authenticated(), async (req, res, next) => {
+router.get('/', authenticate, async (req, res, next) => {
     try {
         await getFavoritesController(req, res);
     } catch (error) {
@@ -129,7 +129,7 @@ router.get('/', authenticated(), async (req, res, next) => {
  *       401:
  *         description: Unauthorized
  */
-router.get('/:movieId/check', authenticated(), async (req, res, next) => {
+router.get('/:movieId/check', authenticate, async (req, res, next) => {
     try {
         await checkFavoriteController(req, res);
     } catch (error) {

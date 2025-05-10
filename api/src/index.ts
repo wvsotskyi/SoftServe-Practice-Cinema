@@ -1,6 +1,5 @@
 import express from 'express';
 import { initializeRoutes } from '@routes/index.js';
-// import { errorHandler } from '@middlewares/error.middleware.js';
 import prisma from '@utils/db.js';
 import swaggerUI from 'swagger-ui-express';
 import swaggerJSDoc from 'swagger-jsdoc';
@@ -33,7 +32,6 @@ app.use('/api-docs',
     }
   })
 );
-// app.use(errorHandler);
 
 const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

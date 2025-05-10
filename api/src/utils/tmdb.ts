@@ -1,4 +1,4 @@
-import { PrismaClient, MovieStatus, Prisma } from '../../generated/prisma/default.js';
+import { MovieStatus, Prisma } from '@prisma/client';
 import { ukrainianCountryNames } from '@utils/countries.js';
 
 

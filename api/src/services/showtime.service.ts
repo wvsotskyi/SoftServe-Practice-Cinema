@@ -1,5 +1,5 @@
+import { Genre } from '@prisma/client';
 import prisma from '@utils/db.js';
-import { Genre, Showtime } from '../../generated/prisma/default.js';
 
 interface ShowtimeFilters {
   date?: string;
@@ -177,3 +177,92 @@ export async function createShowtime  (input: CreateShowtimeInput)  {
     }
   });
 };
+
+export async function updateShowtime(id: number, updateData: Partial<CreateShowtimeInput>) {
+  // Check if showtime exists
+  const existingShowtime = await prisma.showtime.findUnique({
+    where: { id }
+  });
+
+  if (!existingShowtime) {
+    throw new Error('Showtime not found');
+  }
+
+  // Validate movie exists if being updated
+  if (updateData.movieId) {
+    const movieExists = await prisma.movie.findUnique({
+      where: { id: updateData.movieId }
+    });
+    if (!movieExists) {
+      throw new Error('Movie not found');
+    }
+  }
+
+  // Validate hall exists if being updated
+  if (updateData.hallId) {
+    const hallExists = await prisma.hall.findUnique({
+      where: { id: updateData.hallId }
+    });
+    if (!hallExists) {
+      throw new Error('Hall not found');
+    }
+  }
+
+  // Check for time conflicts (30 minutes buffer) if time is being updated
+  if (updateData.time) {
+    const conflictingShowtime = await prisma.showtime.findFirst({
+      where: {
+        id: { not: id }, // Exclude current showtime
+        hallId: updateData.hallId || existingShowtime.hallId,
+        time: {
+          gte: new Date(updateData.time.getTime() - 30 * 60000),
+          lte: new Date(updateData.time.getTime() + 30 * 60000)
+        }
+      }
+    });
+
+    if (conflictingShowtime) {
+      throw new Error('Hall is already booked at this time');
+    }
+  }
+
+  return await prisma.showtime.update({
+    where: { id },
+    data: updateData,
+    include: {
+      movie: {
+        select: {
+          id: true,
+          title: true,
+          runtime: true
+        }
+      },
+      hall: {
+        select: {
+          id: true,
+          name: true
+        }
+      }
+    }
+  });
+}
+
+export async function deleteShowtime(id: number) {
+  // Check if showtime exists
+  const showtime = await prisma.showtime.findUnique({
+    where: { id }
+  });
+
+  if (!showtime) {
+    throw new Error('Showtime not found');
+  }
+
+  // Delete associated bookings first if needed
+  await prisma.booking.deleteMany({
+    where: { showtimeId: id }
+  });
+
+  return await prisma.showtime.delete({
+    where: { id }
+  });
+}

@@ -1,16 +1,17 @@
 import { Link } from "react-router-dom";
 import { LuLogIn } from "react-icons/lu";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 
-export function Register() {
-  const { register, isLoading } = useAuth();
+export function LoginPage() {
+  const { login, isLoading } = useAuth();
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: ""
   });
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -25,11 +26,10 @@ export function Register() {
     setError("");
 
     try {
-      await register(formData.email, formData.password, formData.name);
-      // On successful registration, the auth context will handle the user state
-      // You might want to redirect here or the context could handle it
+      await login(formData.email, formData.password);
+      navigate("/");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Registration failed");
+      setError(err instanceof Error ? err.message : "Login failed");
     }
   };
 
@@ -52,20 +52,6 @@ export function Register() {
         )}
 
         <div className="w-full">
-          <label htmlFor="name" className="text-white text-sm">
-            Ім'я
-          </label>
-          <input
-            type="text"
-            id="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full mt-2 p-3 bg-transparent border border-[#A9A9A9] text-white rounded-lg focus:outline-none"
-            required
-          />
-        </div>
-
-        <div className="w-full">
           <label htmlFor="email" className="text-white text-sm">
             Email
           </label>
@@ -76,6 +62,7 @@ export function Register() {
             onChange={handleChange}
             className="w-full mt-2 p-3 bg-transparent border border-[#A9A9A9] text-white rounded-lg focus:outline-none"
             required
+            autoComplete="username"
           />
         </div>
 
@@ -91,6 +78,7 @@ export function Register() {
             className="w-full mt-2 p-3 bg-transparent border border-[#A9A9A9] text-white rounded-lg focus:outline-none"
             required
             minLength={6}
+            autoComplete="current-password"
           />
         </div>
 
@@ -100,19 +88,19 @@ export function Register() {
           className="bg-[#FF6347] hover:bg-[#FF4500] text-white p-4 rounded-lg w-full flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
         >
           {isLoading ? (
-            <span>Обробка...</span>
+            <span>Вхід...</span>
           ) : (
             <>
               <LuLogIn className="w-5 h-5" />
-              <span>Реєстрація</span>
+              <span>Увійти</span>
             </>
           )}
         </button>
 
         <p className="text-center text-[#CCCCCC] mt-2 text-sm">
-          Вже є аккаунт?
-          <Link className="text-[#A9A9A9] font-semibold ml-2" to="/login">
-            Увійти
+          Ще немає аккаунту?
+          <Link className="text-[#A9A9A9] font-semibold ml-2" to="/register">
+            Реєструйся тут
           </Link>
         </p>
       </form>

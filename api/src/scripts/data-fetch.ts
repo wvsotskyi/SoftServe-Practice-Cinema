@@ -1,5 +1,5 @@
+import { PrismaClient } from '@prisma/client';
 import { fetchMovieDetails, mapTmdbMovieToPrisma, tmdbFetch, TMDBMovie } from '@utils/tmdb.js';
-import { PrismaClient, MovieStatus, Prisma } from '../../generated/prisma/default.js';
 
 const prisma = new PrismaClient();
 
