@@ -43,31 +43,31 @@ model RefreshToken {
 }
 
 model Movie {
-  id                   Int          @id @default(autoincrement())
-  tmdbId               Int          @unique
-  imdbId               Int
-  title                String
-  originalTitle        String
-  originalLanguage     String
-  overview             String
-  posterPath           String?
-  backdropPath         String?
-  releaseDate          DateTime?
+  id                  Int          @id @default(autoincrement())
+  tmdbId              Int          @unique
+  imdbId              Int
+  title               String
+  originalTitle       String
+  originalLanguage    String
+  overview            String
+  posterPath          String?
+  backdropPath        String?
+  releaseDate         DateTime?
   productionCountries String[]
-  runtime              Int?
-  budget               Int?
-  revenue              Int?
-  trailerKey           String?
-  voteAverage          Float?
-  voteCount            Int?
-  adult                Boolean      @default(false)
-  genres               Genre[]
-  cast                 Cast[]
-  status               MovieStatus?
-  createdAt            DateTime     @default(now())
-  updatedAt            DateTime     @updatedAt
-  favorites            Favorite[]
-  showtimes            Showtime[]
+  runtime             Int?
+  budget              Int?
+  revenue             Int?
+  trailerKey          String?
+  voteAverage         Float?
+  voteCount           Int?
+  adult               Boolean      @default(false)
+  genres              Genre[]
+  cast                Cast[]
+  status              MovieStatus?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  favorites           Favorite[]
+  showtimes           Showtime[]
 }
 
 model Genre {
@@ -104,14 +104,15 @@ model Seat {
 }
 
 model Showtime {
-  id       Int       @id @default(autoincrement())
-  movie    Movie     @relation(fields: [movieId], references: [id])
-  movieId  Int
-  hall     Hall      @relation(fields: [hallId], references: [id])
-  hallId   Int
-  time     DateTime
-  price    Float
-  bookings Booking[]
+  id               Int       @id @default(autoincrement())
+  movie            Movie     @relation(fields: [movieId], references: [id])
+  movieId          Int
+  hall             Hall      @relation(fields: [hallId], references: [id])
+  hallId           Int
+  date             DateTime
+  timeOfDaySeconds Int
+  price            Float
+  bookings         Booking[]
 }
 
 model Booking {
