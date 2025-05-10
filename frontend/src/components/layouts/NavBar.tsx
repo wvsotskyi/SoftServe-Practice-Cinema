@@ -90,9 +90,9 @@ export function Navbar() {
         </div>
 
         <div className="flex gap-6 items-center ml-auto">
-          <div className="text-white cursor-pointer hover:text-red-600 transition-all">
+          <Link to="/search" className="text-white cursor-pointer hover:text-red-600 transition-all">
             <FaSearch size={20} />
-          </div>
+          </Link>
           <div className="text-white cursor-pointer hover:text-red-600 transition-all hidden sm:inline">
             <FaBell size={20} />
           </div>
