@@ -6,7 +6,7 @@ import {
   logout, 
   getCurrentUser
 } from '@controllers/auth.controller.js';
-import { authenticated } from '@middlewares/auth.middleware.js';
+import { authenticate } from '@middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -150,7 +150,7 @@ router.post('/logout', async (req, res, next) => {
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticated(), async (req, res, next) => {
+router.get('/me', authenticate, async (req, res, next) => {
   try {
     await getCurrentUser(req, res);
   } catch (error) {

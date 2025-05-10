@@ -1,5 +1,4 @@
 import prisma from '@utils/db.js';
-import { Booking, Seat, Showtime } from '../../generated/prisma/default.js';
 
 interface CreateBookingParams {
   userId: number;

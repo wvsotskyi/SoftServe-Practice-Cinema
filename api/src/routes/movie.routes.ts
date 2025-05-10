@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { deleteMovieController, getAllMoviesController, getMovieController, searchMoviesController, updateMovieController } from '@controllers/movie.controller.js';
-import { authenticated, verifyAdmin } from '@middlewares/auth.middleware.js';
+import { authenticate, verifyAdmin } from '@middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -175,7 +175,7 @@ router.get('/:id', async (req, res, next) => {
  *       500:
  *         description: Internal server error
  */
-router.put('/:id', authenticated(), verifyAdmin, async (req, res, next) => {
+router.put('/:id', authenticate, verifyAdmin, async (req, res, next) => {
   try {
     await updateMovieController(req, res);
   } catch (error) {
@@ -210,7 +210,7 @@ router.put('/:id', authenticated(), verifyAdmin, async (req, res, next) => {
  *       500:
  *         description: Internal server error
  */
-router.delete('/:id', authenticated(), verifyAdmin, async (req, res, next) => {
+router.delete('/:id', authenticate, verifyAdmin, async (req, res, next) => {
   try {
     await deleteMovieController(req, res);
   } catch (error) {

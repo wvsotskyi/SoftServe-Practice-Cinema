@@ -1,5 +1,5 @@
+import { Hall, Seat } from '@prisma/client';
 import prisma from '@utils/db.js';
-import { Seat, Hall } from '../../generated/prisma/default.js';
 
 interface HallWithSeats extends Hall {
   seats: (Seat & { isTaken: boolean })[];

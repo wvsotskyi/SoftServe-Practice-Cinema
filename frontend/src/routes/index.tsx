@@ -4,15 +4,15 @@ import { HomePage } from "../pages/HomePage/HomePage";
 import { MoviePage } from "../pages/MoviePage/MoviePage";
 import { FavoritesPage } from "../pages/FavoritesPage/FavoritesPage";
 import { AddSession } from "../pages/AdminPage/AddSession";
-import AddMovie from "../pages/AdminPage/AddMovie";
 import { AdminLayout } from "../pages/AdminPage/AdminLayout";
 import { AdminHome } from "../pages/AdminPage/AdminHome";
-import { Login } from "../pages/AuthPage/Login";
-import { Register } from "../pages/AuthPage/Register";
+import { LoginPage } from "../pages/AuthPage/LoginPage";
+import { RegisterPage } from "../pages/AuthPage/RegisterPage";
 import { AuthRoute } from "../components/Routes/AuthRoute";
 import { AdminRoute } from "../components/Routes/AdminRoute";
-import EditMovie from "../pages/AdminPage/EditMovie";
 import { ProtectedRoute } from "../components/Routes/ProtectedRoute";
+import { EditMovie } from "../pages/AdminPage/EditMovie";
+import { AddMovie } from "../pages/AdminPage/AddMovie";
 
 export const router = createBrowserRouter([
   {
@@ -42,7 +42,7 @@ export const router = createBrowserRouter([
         path: "/register",
         element: (
           <AuthRoute>
-            <Register />
+            <RegisterPage />
           </AuthRoute>
         ),
       },
@@ -50,7 +50,7 @@ export const router = createBrowserRouter([
         path: "/login",
         element: (
           <AuthRoute>
-            <Login />
+            <LoginPage />
           </AuthRoute>
         ),
       },

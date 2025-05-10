@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { addMovieFromTMDBController, searchTMDBMoviesController } from '@controllers/tmdb.controller.js';
-import { authenticated, verifyAdmin } from '@middlewares/auth.middleware.js';
+import { authenticate, verifyAdmin } from '@middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -35,7 +35,7 @@ const router = Router();
  *       500:
  *         description: Internal server error
  */
-router.get('/search', authenticated(), verifyAdmin, async (req, res, next) => {
+router.get('/search', authenticate, verifyAdmin, async (req, res, next) => {
   try {
     await searchTMDBMoviesController(req, res);
   } catch (error) {
@@ -78,7 +78,7 @@ router.get('/search', authenticated(), verifyAdmin, async (req, res, next) => {
  *       500:
  *         description: Failed to add movie from TMDB
  */
-router.post('/movies', authenticated(), verifyAdmin, async (req, res, next) => {
+router.post('/movies', authenticate, verifyAdmin, async (req, res, next) => {
   try {
     await addMovieFromTMDBController(req, res);
   } catch (error) {

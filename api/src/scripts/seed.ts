@@ -1,6 +1,6 @@
-import { PrismaClient, Role, BookingStatus, Prisma } from '../../generated/prisma/default.js';
 import { hash } from 'bcryptjs';
 import { fillDatabaseWithMovies } from './data-fetch.js';
+import { PrismaClient, Role } from '@prisma/client';
 
 const prisma = new PrismaClient();
 

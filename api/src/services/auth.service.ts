@@ -2,7 +2,7 @@ import bcrypt from 'bcrypt';
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '@utils/db.js';
-import { User, Session, RefreshToken } from '../../generated/prisma/default.js';
+import { User } from '@prisma/client';
 
 const JWT_CONFIG = {
   secret: process.env.JWT_SECRET as Secret || 'random-strong-secret',

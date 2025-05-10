@@ -1,5 +1,5 @@
+import { Cast, Genre, Movie, Prisma } from "@prisma/client";
 import prisma from "@utils/db.js";
-import { Movie, Cast, Genre, Prisma } from "../../generated/prisma/default.js";
 
 export type MovieWithRelations = Movie & {
   genres: Genre[];
