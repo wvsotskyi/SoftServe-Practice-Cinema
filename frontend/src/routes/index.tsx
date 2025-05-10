@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { MainLayout } from "../components/layouts/MainLayout";
 import { HomePage } from "../pages/HomePage/HomePage";
 import { MoviePage } from "../pages/MoviePage/MoviePage";
+import { SearchPage } from "../pages/SearchPage/SearchPage";
 import { FavoritesPage } from "../pages/FavoritesPage/FavoritesPage";
 import { AddSession } from "../pages/AdminPage/AddSession";
 import { AddMovie } from "../pages/AdminPage/AddMovie";
@@ -28,6 +29,10 @@ export const router = createBrowserRouter([
       {
         path: "/movie/:id",
         element: <MoviePage />,
+      },
+      {
+        path:"search",
+        element: <SearchPage />,
       },
       {
         path: "/favorites",
