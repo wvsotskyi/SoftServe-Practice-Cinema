@@ -13,6 +13,8 @@ import { AdminRoute } from "../components/Routes/AdminRoute";
 import { ProtectedRoute } from "../components/Routes/ProtectedRoute";
 import { EditMovie } from "../pages/AdminPage/EditMovie";
 import { AddMovie } from "../pages/AdminPage/AddMovie";
+import { Session } from "../pages/Session/Session";
+import { Booking } from "../pages/Booking/Booking";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +81,14 @@ export const router = createBrowserRouter([
             element: <EditMovie />,
           },
         ],
+      },
+      {
+        path: "/sessions",
+        element: <Session />,
+      },
+      {
+        path: "/booking/:showtimeId",
+        element: <Booking />,
       },
     ],
   },
