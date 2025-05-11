@@ -13,6 +13,7 @@ import { AdminRoute } from "../components/Routes/AdminRoute";
 import { ProtectedRoute } from "../components/Routes/ProtectedRoute";
 import { EditMovie } from "../pages/AdminPage/EditMovie";
 import { AddMovie } from "../pages/AdminPage/AddMovie";
+import { Session } from "../pages/Session/Session";
 
 export const router = createBrowserRouter([
   {
@@ -79,6 +80,10 @@ export const router = createBrowserRouter([
             element: <EditMovie />,
           },
         ],
+      },
+      {
+        path: "/sessions",
+        element: <Session />,
       },
     ],
   },
