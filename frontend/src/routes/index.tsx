@@ -11,8 +11,8 @@ import { RegisterPage } from "../pages/AuthPage/RegisterPage";
 import { AuthRoute } from "../components/Routes/AuthRoute";
 import { AdminRoute } from "../components/Routes/AdminRoute";
 import { ProtectedRoute } from "../components/Routes/ProtectedRoute";
-import { EditMovie } from "../pages/AdminPage/EditMovie";
-import { AddMovie } from "../pages/AdminPage/AddMovie";
+import  EditMovie  from "../pages/AdminPage/EditMovie";
+import  AddMovie from "../pages/AdminPage/AddMovie";
 
 export const router = createBrowserRouter([
   {
