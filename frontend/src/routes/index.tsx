@@ -16,6 +16,8 @@ import { EditMovie } from "../pages/AdminPage/EditMovie";
 import { AddMovie } from "../pages/AdminPage/AddMovie";
 import { Session } from "../pages/Session/Session";
 import { Booking } from "../pages/Booking/Booking";
+import { AddSession } from "../pages/AdminPage/AddSession";
+import { EditSession } from "../pages/AdminPage/EditSession";
 
 export const router = createBrowserRouter([
   {

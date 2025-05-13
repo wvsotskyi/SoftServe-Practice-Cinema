@@ -24,7 +24,7 @@ interface Movie {
   genres: number[];
 }
 
-export default function EditMovie() {
+export function EditMovie() {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [genres, setGenres] = useState<Genre[]>([]);
   const [selectedGenres, setSelectedGenres] = useState<number[]>([]);

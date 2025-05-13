@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import  ConfirmAddModal  from "../../components/AdminModal/ConfirmAddModal";
+import ConfirmAddModal from "../../components/AdminModal/ConfirmAddModal";
 
 interface Suggestion {
   tmdbId: number;
@@ -9,7 +9,7 @@ interface Suggestion {
   releaseDate: string;
 }
 
-const AddMovie = () => {
+export function AddMovie() {
   const [search, setSearch] = useState("");
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -20,7 +20,9 @@ const AddMovie = () => {
   const navigate = useNavigate();
 
   const fetchSuggestions = async (query: string) => {
-    const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
+    const accessToken = JSON.parse(
+      localStorage.getItem("authTokens") || "{}"
+    ).accessToken;
     if (!accessToken) {
       setError("Не вдалося отримати токен.");
       return;
@@ -41,7 +43,9 @@ const AddMovie = () => {
   };
 
   const handleAddMovie = async (tmdbId: number) => {
-    const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
+    const accessToken = JSON.parse(
+      localStorage.getItem("authTokens") || "{}"
+    ).accessToken;
     if (!accessToken) {
       setError("Не вдалося отримати токен.");
       return;
@@ -73,7 +77,9 @@ const AddMovie = () => {
       <h2 className="text-2xl font-bold mb-4">Додати фільм</h2>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
-      {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
+      {successMessage && (
+        <p className="text-green-500 mb-4">{successMessage}</p>
+      )}
 
       <div className="mb-4 flex gap-2">
         <input
@@ -133,6 +139,4 @@ const AddMovie = () => {
       />
     </div>
   );
-};
-
-export default AddMovie;
+}

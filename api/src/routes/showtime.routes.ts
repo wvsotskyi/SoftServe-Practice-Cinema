@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticate, verifyAdmin } from '@middlewares/auth.middleware.js';
-import { getFiltersController, getFilteredShowtimesController, createShowtimeController, updateShowtimeController, deleteShowtimeController } from '@controllers/showtime.controller.js';
+import { getFiltersController, getFilteredShowtimesController, createShowtimeController, updateShowtimeController, deleteShowtimeController, getShowtimeByIdController } from '@controllers/showtime.controller.js';
 
 const router = express.Router();
 
@@ -133,6 +133,32 @@ router.post('/', authenticate, verifyAdmin, async (req, res, next) => {
 router.put('/:id', authenticate, verifyAdmin, async (req, res, next) => {
   try {
     await updateShowtimeController(req, res);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * @swagger
+ * /showtimes/{id}:
+ *   get:
+ *     summary: Get a showtime by ID
+ *     tags: [Showtime]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Showtime details
+ *       404:
+ *         description: Showtime not found
+ */
+router.get('/:id', authenticate, verifyAdmin, async (req, res, next) => {
+  try {
+    await getShowtimeByIdController(req, res);
   } catch (error) {
     next(error);
   }

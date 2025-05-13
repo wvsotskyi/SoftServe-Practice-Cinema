@@ -169,6 +169,23 @@ export async function deleteShowtime(id: number) {
   });
 }
 
+export async function getShowtime(id: number) {
+  const result = await prisma.showtime.findUnique({
+    where: { id },
+  });
+
+  if (result?.timeOfDaySeconds == null)
+    throw new Error("Time is not provided in database")
+
+  return {
+    time: convertSecondsToTime(result?.timeOfDaySeconds),
+    date: result.date,
+    hallId: result.hallId,
+    movieId: result.movieId,
+    price: result.price
+  }
+}
+
 function convertSecondsToTime(seconds: number): string {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);

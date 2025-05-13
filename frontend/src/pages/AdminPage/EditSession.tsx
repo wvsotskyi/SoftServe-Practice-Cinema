@@ -25,7 +25,9 @@ export function EditSession() {
   const queryParams = new URLSearchParams(location.search);
   const sessionId = queryParams.get("id");
 
-  const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
+  const accessToken = JSON.parse(
+    localStorage.getItem("authTokens") || "{}"
+  ).accessToken;
 
   const [movies, setMovies] = useState<Movie[]>([]);
   const [halls, setHalls] = useState<Hall[]>([]);
@@ -42,21 +44,17 @@ export function EditSession() {
   useEffect(() => {
     if (!sessionId || !accessToken) return;
 
-    // ??????????????????????
     fetch(`${import.meta.env.VITE_API_URL}/api/showtimes/${sessionId}`, {
       headers: { Authorization: `Bearer ${accessToken}` },
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log (data)
         setSession({
-
           movieId: data.movieId,
           hallId: data.hallId,
-          date: data.date,
+          date: (new Date(data.date)).toISOString().split('T')[0],
           time: data.time,
           price: data.price,
-
         });
       });
 
@@ -78,14 +76,17 @@ export function EditSession() {
     if (!sessionId || !accessToken) return;
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/showtimes/${sessionId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify(session),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/showtimes/${sessionId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(session),
+        }
+      );
 
       if (res.ok) {
         setSuccessMessage("Сеанс успішно оновлено!");
@@ -113,7 +114,9 @@ export function EditSession() {
           <label className="text-sm">Фільм</label>
           <select
             value={session.movieId}
-            onChange={(e) => setSession({ ...session, movieId: +e.target.value })}
+            onChange={(e) =>
+              setSession({ ...session, movieId: +e.target.value })
+            }
             className="w-full p-3 rounded-lg bg-[#1C1B20] text-white border border-[#A9A9A9] appearance-none"
           >
             <option value="">Оберіть фільм</option>
@@ -147,19 +150,20 @@ export function EditSession() {
 
         <div>
           <label className="text-sm">Зал</label>
- <select
-  value={session.hallId}
-  onChange={(e) => setSession({ ...session, hallId: +e.target.value })}
-  className="w-full p-3 rounded-lg bg-[#1C1B20] text-white border border-[#A9A9A9] appearance-none"
->
-  <option value="">Оберіть зал</option>
-  {halls.map((hall) => (
-    <option key={hall.id} value={hall.id}>
-      {hall.name}
-    </option>
-  ))}
-</select>
-
+          <select
+            value={session.hallId}
+            onChange={(e) =>
+              setSession({ ...session, hallId: +e.target.value })
+            }
+            className="w-full p-3 rounded-lg bg-[#1C1B20] text-white border border-[#A9A9A9] appearance-none"
+          >
+            <option value="">Оберіть зал</option>
+            {halls.map((hall) => (
+              <option key={hall.id} value={hall.id}>
+                {hall.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

@@ -1,9 +1,17 @@
-import { createShowtime, deleteShowtime, getShowtimeFilterOptions, getShowtimesWithFilters, updateShowtime } from '@services/showtime.service.js';
+import { createShowtime, deleteShowtime, getShowtime, getShowtimeFilterOptions, getShowtimesWithFilters, updateShowtime } from '@services/showtime.service.js';
 import { Request, Response } from 'express';
 
 export async function getFiltersController(req: Request, res: Response) {
   const filters = await getShowtimeFilterOptions();
   res.json(filters);
+}
+
+export async function getShowtimeByIdController(req: Request, res: Response) {
+  const showtimeId = Number(req.params.id);
+
+  const showtime = await getShowtime(showtimeId);
+
+  res.json(showtime);
 }
 
 export async function getFilteredShowtimesController(req: Request, res: Response) {
