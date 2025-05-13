@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { FaFilm, FaThList } from "react-icons/fa";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { ConfirmModal } from "../../components/AdminModal/ConfirmModal";
+
+
 
 interface Movie {
   id: number;
@@ -21,6 +24,10 @@ interface Genre {
 }
 
 export function AdminHome() {
+  const [showModal, setShowModal] = useState(false);
+  const [selectedMovieId, setSelectedMovieId] = useState<number | null>(null);
+  const [selectedMovieTitle, setSelectedMovieTitle] = useState<string | null>(null);
+
   const [movies, setMovies] = useState<Movie[]>([]);
   const [genres, setGenres] = useState<Genre[]>([]);
   const navigate = useNavigate();
@@ -73,8 +80,8 @@ export function AdminHome() {
 
   return (
     <div className="flex bg-[#0F0F0F] min-h-screen text-white mt-20">
-      <main className="flex-1 p-6 space-y-6">
-        {/* Cards */}
+      <main className="flex-1 p-0 space-y-5">
+
         <div className="grid md:grid-cols-2 gap-4">
           <StatCard
             icon={<FaFilm />}
@@ -88,7 +95,6 @@ export function AdminHome() {
           />
         </div>
 
-        {/* Table */}
         <div className="bg-[#141418] rounded-lg border border-[#2D2D2D] overflow-x-auto">
           <table className="min-w-full text-sm">
             <thead className="text-left text-[#A9A9A9] bg-[#1C1B20]">
@@ -96,13 +102,9 @@ export function AdminHome() {
                 <th className="p-4">ФОТО</th>
                 <th className="p-4">НАЗВА</th>
                 <th className="p-4 hidden sm:table-cell">ЖАНРИ</th>{" "}
-                {/* Скрыто на мобильных */}
                 <th className="p-4 hidden sm:table-cell">МОВА</th>{" "}
-                {/* Скрыто на мобильных */}
                 <th className="p-4 hidden sm:table-cell">РІК</th>{" "}
-                {/* Скрыто на мобильных */}
                 <th className="p-4 hidden sm:table-cell">ТРИВАЛІСТЬ</th>{" "}
-                {/* Скрыто на мобильных */}
                 <th className="p-4">ДІЇ</th>
               </tr>
             </thead>
@@ -143,20 +145,16 @@ export function AdminHome() {
                     >
                       <FiEdit /> Edit
                     </button>
-                    <button
-                      className="flex items-center gap-1 bg-red-700 hover:bg-red-800 px-2 py-1 rounded text-xs"
-                      onClick={() => {
-                        if (
-                          window.confirm(
-                            `Ви впевнені, що хочете видалити "${movie.title}"?`
-                          )
-                        ) {
-                          handleDeleteMovie(movie.id);
-                        }
-                      }}
-                    >
-                      <FiTrash2 />
-                    </button>
+                  <button
+                    className="flex items-center gap-1 bg-red-700 hover:bg-red-800 px-2 py-1 rounded text-xs"
+                    onClick={() => {
+                      setSelectedMovieId(movie.id);
+                      setSelectedMovieTitle(movie.title);
+                      setShowModal(true);
+                    }}
+                  >
+                    <FiTrash2 />
+                  </button>
                   </td>
                 </tr>
               ))}
@@ -164,6 +162,22 @@ export function AdminHome() {
           </table>
         </div>
       </main>
+            {showModal && selectedMovieId !== null && (
+        <ConfirmModal
+          title={`Ви впевнені, що хочете видалити "${selectedMovieTitle}"?`}
+          onCancel={() => {
+            setShowModal(false);
+            setSelectedMovieId(null);
+            setSelectedMovieTitle(null);
+          }}
+          onConfirm={() => {
+            handleDeleteMovie(selectedMovieId);
+            setShowModal(false);
+            setSelectedMovieId(null);
+            setSelectedMovieTitle(null);
+          }}
+        />
+      )}
     </div>
   );
 };
