@@ -17,7 +17,6 @@ interface Movie {
   runtime: number;
   budget: number;
   revenue: number;
-  trailerUrl: string;
   voteAverage: number;
   voteCount: number;
   adult: boolean;
@@ -25,58 +24,42 @@ interface Movie {
   genres: number[];
 }
 
-export function EditMovie() {
+export default function EditMovie() {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [genres, setGenres] = useState<Genre[]>([]);
-  const [selectedGenreId, setSelectedGenreId] = useState<number | null>(null);
+  const [selectedGenres, setSelectedGenres] = useState<number[]>([]);
+  const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const queryParams = new URLSearchParams(location.search);
   const movieId = queryParams.get("id");
 
   useEffect(() => {
     if (!movieId) return;
-
     const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
     if (!accessToken) return;
 
     fetch(`${import.meta.env.VITE_API_URL}/api/movies/${movieId}`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { Authorization: `Bearer ${accessToken}` },
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
           setMovie(data.data);
-          setSelectedGenreId(data.data.genres?.[0]?.id || null);
-        } else {
-          console.error("Ошибка при получении данных фильма:", data);
+          const genreIds = data.data.genres.map((g: Genre) => g.id);
+          setSelectedGenres(genreIds);
         }
-      })
-      .catch((err) => {
-        console.error("Ошибка при подключении:", err);
-        alert("Ошибка подключения при получении данных фильма");
       });
 
-    // Запрос для получения жанров
     fetch(`${import.meta.env.VITE_API_URL}/api/genres`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { Authorization: `Bearer ${accessToken}` },
     })
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.data) {
           setGenres(data.data);
-        } else {
-          console.error("Ошибка при получении жанров:", data);
         }
-      })
-      .catch((err) => {
-        console.error("Ошибка при подключении:", err);
-        alert("Ошибка подключения при получении жанров");
       });
   }, [movieId]);
 
@@ -85,28 +68,12 @@ export function EditMovie() {
     if (!movie || !movieId) return;
 
     const accessToken = JSON.parse(localStorage.getItem("authTokens") || "{}").accessToken;
-    if (!accessToken) {
-      alert("Немає токена авторизації.");
-      return;
-    }
+    if (!accessToken) return;
 
     const updatedMovie = {
-      title: movie.title,
-      originalTitle: movie.title, 
-      originalLanguage: movie.originalLanguage,
-      overview: movie.overview,
-      posterPath: movie.posterPath,
-      backdropPath: movie.backdropPath || "",
-      releaseDate: movie.releaseDate,
-      runtime: movie.runtime,
-      budget: movie.budget || 0,
-      revenue: movie.revenue || 0,
-      trailerKey: movie.trailerUrl, 
-      voteAverage: movie.voteAverage || 0,
-      voteCount: movie.voteCount || 0,
-      adult: movie.adult,
-      status: "RELEASED", 
-      genres: selectedGenreId ? [selectedGenreId] : [],
+      ...movie,
+      genres: selectedGenres,
+      status: "RELEASED",
     };
 
     try {
@@ -120,23 +87,32 @@ export function EditMovie() {
       });
 
       if (res.ok) {
-        navigate("/admin");
+        setSuccessMessage("Фільм успішно оновлено!");
+        setTimeout(() => {
+          navigate("/admin");
+        }, 1500);
       } else {
-        const error = await res.json();
-        console.error("Ошибка на сервере:", error);
         alert("Не вдалося оновити фільм");
       }
-    } catch (err) {
-      console.error("Ошибка при подключении:", err);
-      alert("Ошибка подключения при обновлении фильма");
+    } catch {
+      alert("Помилка з'єднання");
     }
   };
 
   if (!movie) return <p className="text-white p-4">Завантаження...</p>;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 text-white p-6 max-w-5xl mx-auto bg-[#1C1B20] rounded-lg border border-[#3F3D45]">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 text-white p-6 mt-24 max-w-5xl mx-auto bg-[#1C1B20] rounded-lg border border-[#3F3D45]"
+    >
       <h2 className="text-2xl font-bold mb-4">Редагувати фільм</h2>
+
+      {successMessage && (
+        <div className="text-green-400 text-center font-semibold mb-4">
+          {successMessage}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div>
@@ -157,7 +133,6 @@ export function EditMovie() {
             className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45]"
           />
         </div>
-
         <div>
           <label className="block mb-1">Мова фільму:</label>
           <input
@@ -188,7 +163,7 @@ export function EditMovie() {
           />
         </div>
         <div>
-          <label className="block mb-1">Опис сюжету фільму:</label>
+          <label className="block mb-1">Опис:</label>
           <textarea
             value={movie.overview}
             onChange={(e) => setMovie({ ...movie, overview: e.target.value })}
@@ -197,34 +172,26 @@ export function EditMovie() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="mb-4">
-          <label className="block mb-1 text-gray-300">Жанр</label>
-          <div className="relative">
-            <select
-              name="genre"
-              value={selectedGenreId || ""}
-              onChange={(e) => setSelectedGenreId(+e.target.value)}
-              className="w-full appearance-none p-3 pr-10 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45] focus:outline-none focus:ring-2 focus:ring-[#FFFFFF]"
-            >
-              <option value="">Оберіть жанр</option>
-              {genres.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div>
-          <label className="block mb-1">Трейлер (YouTube URL):</label>
-          <input
-            type="text"
-            value={movie.trailerUrl}
-            onChange={(e) => setMovie({ ...movie, trailerUrl: e.target.value })}
-            className="w-full p-3 rounded-lg bg-[#1C1B20] text-gray-200 border border-[#3F3D45]"
-          />
+      <div className="mb-4">
+        <label className="block mb-2 text-gray-300 font-medium">Жанри:</label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {genres.map((genre) => (
+            <label key={genre.id} className="inline-flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={selectedGenres.includes(genre.id)}
+                onChange={() => {
+                  setSelectedGenres((prev) =>
+                    prev.includes(genre.id)
+                      ? prev.filter((id) => id !== genre.id)
+                      : [...prev, genre.id]
+                  );
+                }}
+                className="form-checkbox h-4 w-4 text-[#FF4D4D] focus:ring-[#FF4D4D] rounded"
+              />
+              <span>{genre.name}</span>
+            </label>
+          ))}
         </div>
       </div>
 

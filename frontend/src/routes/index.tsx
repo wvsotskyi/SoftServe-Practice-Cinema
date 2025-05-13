@@ -4,7 +4,7 @@ import { HomePage } from "../pages/HomePage/HomePage";
 import { MoviePage } from "../pages/MoviePage/MoviePage";
 import { SearchPage } from "../pages/SearchPage/SearchPage";
 import { FavoritesPage } from "../pages/FavoritesPage/FavoritesPage";
-import { AddSession } from "../pages/AdminPage/AddSession";
+import { ManageSessions } from "../pages/AdminPage/ManageSessions";
 import { AdminLayout } from "../pages/AdminPage/AdminLayout";
 import { AdminHome } from "../pages/AdminPage/AdminHome";
 import { LoginPage } from "../pages/AuthPage/LoginPage";
@@ -78,12 +78,20 @@ export const router = createBrowserRouter([
             element: <AddMovie />,
           },
           {
-            path: "add-session",
-            element: <AddSession />,
+            path: "manage-session",
+            element: <ManageSessions />,
           },
           {
             path: "edit-movie",
             element: <EditMovie />,
+          },
+          {
+            path: "add-session", 
+            element: <AddSession />, 
+          },
+          {
+            path: "edit-session", 
+            element: <EditSession />, 
           },
         ],
       },
