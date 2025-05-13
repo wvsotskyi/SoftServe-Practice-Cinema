@@ -1,7 +1,6 @@
 import { Request, Response } from "express";
 import { getMovies, getMovieById, searchMovies, deleteMovieWithRelations, updateMovieWithRelations } from "@services/movie.service.js";
 import { APIResponse } from "@utils/apiResponse.js";
-import { verifyAdmin } from "@middlewares/auth.middleware.js";
 import prisma from "@utils/db.js";
 
 export async function getAllMoviesController (req: Request, res: Response)  {
@@ -145,8 +144,7 @@ export async function searchMoviesController  (req: Request, res: Response)  {
  */
 export async function updateMovieController  (req: Request, res: Response)  {
   try {
-    await verifyAdmin(req, res, () => {});
-    
+   
     const { id } = req.params;
     const updateData = req.body;
 
@@ -187,8 +185,7 @@ export async function updateMovieController  (req: Request, res: Response)  {
 
 export async function deleteMovieController  (req: Request, res: Response)  {
   try {
-    await verifyAdmin(req, res, () => {});
-    
+   
     const { id } = req.params;
 
     if (!id || isNaN(Number(id))) {

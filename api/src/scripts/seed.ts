@@ -120,6 +120,7 @@ async function main() {
 
             // Reset time to midnight for date operations
             currentDate.setHours(0, 0, 0, 0);
+            const dateOnly = new Date(currentDate.toISOString().split('T')[0]);
 
             // Alternate movies between days
             const movieOffset = dayOffset % 2;
@@ -131,17 +132,17 @@ async function main() {
                 const movieIndex = (movieOffset + slotIndex) % movies.length;
 
                 const [hours, minutes] = slot.time.split(':').map(Number);
-                const showtimeDate = new Date(currentDate);
-                showtimeDate.setHours(hours, minutes);
+                const timeOfDaySeconds = hours * 3600 + minutes * 60;
 
                 // Check if hall is available (optional)
                 const conflictingShowtime = await prisma.showtime.findFirst({
                     where: {
                         hallId: halls[hallIndex].id,
-                        time: {
-                            // 30 minutes buffer between showtimes
-                            gte: new Date(showtimeDate.getTime() - 30 * 60000),
-                            lte: new Date(showtimeDate.getTime() + 30 * 60000)
+                        date: dateOnly,
+                        timeOfDaySeconds: {
+                            // 30 minutes buffer between showtimes (1800 seconds)
+                            gte: timeOfDaySeconds - 1800,
+                            lte: timeOfDaySeconds + 1800
                         }
                     }
                 });
@@ -151,7 +152,8 @@ async function main() {
                         data: {
                             movieId: movies[movieIndex].id,
                             hallId: halls[hallIndex].id,
-                            time: showtimeDate,
+                            date: dateOnly,
+                            timeOfDaySeconds: timeOfDaySeconds,
                             price: slot.price
                         }
                     });
@@ -162,7 +164,6 @@ async function main() {
 
         return showtimes;
     }
-
     const showtimes = await createWeeklyShowtimes();
     console.log(`Created ${showtimes.length} showtimes`);
 

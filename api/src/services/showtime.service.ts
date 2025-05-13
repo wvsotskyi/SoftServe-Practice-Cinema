@@ -1,268 +1,180 @@
-import { Genre } from '@prisma/client';
-import prisma from '@utils/db.js';
+import { PrismaClient } from '@prisma/client';
 
-interface ShowtimeFilters {
-  date?: string;
-  timeRange?: {
-    start?: string;
-    end?: string;
-  };
+const prisma = new PrismaClient();
+
+interface ShowtimeFilterInput {
   genreId?: number;
-  movieId?: number;
+  dates?: string[];
+  times?: string[];
 }
 
-interface ShowtimeFilterOptions {
-  genres: Genre[];
-  dates: string[];
-  times: string[];
-}
-
-export async function getShowtimesGroupedByMovie  (filters: ShowtimeFilters = {})  {
-  const { date, timeRange, genreId, movieId } = filters;
-
-  const dateFilter = date ? {
-    gte: new Date(`${date}T00:00:00`),
-    lt: new Date(`${date}T23:59:59`)
-  } : undefined;
-
-  const timeFilter = timeRange ? {
-    ...(timeRange.start && { gte: new Date(timeRange.start) }),
-    ...(timeRange.end && { lt: new Date(timeRange.end) })
-  } : undefined;
-
-  return await prisma.movie.findMany({
-    where: {
-      id: movieId,
-      genres: genreId ? { some: { id: genreId } } : undefined,
-      showtimes: { some: { time: { ...dateFilter, ...timeFilter } } }
-    },
-    include: {
-      showtimes: {
-        where: { time: { ...dateFilter, ...timeFilter } },
-        include: {
-          hall: {
-            include: {
-              seats: true
-            }
-          },
-          bookings: {
-            select: {
-              seats: { select: { id: true } }
-            }
-          }
-        },
-        orderBy: { time: 'asc' }
-      }
-    },
-    orderBy: { title: 'asc' }
-  });
-};
-
-export async function getShowtimeFilterOptions  (): Promise<ShowtimeFilterOptions>  {
-  // Get all unique genres that have showtimes
+export async function getShowtimeFilterOptions() {
   const genres = await prisma.genre.findMany({
     where: {
       movies: {
         some: {
           showtimes: {
-            some: {}
-          }
-        }
-      }
+            some: {},
+          },
+        },
+      },
     },
     distinct: ['id'],
-    orderBy: { name: 'asc' }
+    orderBy: { name: 'asc' },
   });
 
-  // Get all unique dates with showtimes (formatted as YYYY-MM-DD)
   const dateResults = await prisma.showtime.findMany({
-    select: {
-      time: true
-    },
-    distinct: ['time'],
-    orderBy: { time: 'asc' }
+    select: { date: true },
+    distinct: ['date'],
+    orderBy: { date: 'asc' },
   });
 
-  // Extract unique dates in YYYY-MM-DD format
-  const dates = [...new Set(
-    dateResults.map(showtime =>
-      showtime.time.toISOString().split('T')[0]
-    )
-  )];
+  const dates = [...new Set(dateResults.map(s => s.date.toISOString().split('T')[0]))];
 
-  // Get all unique times (formatted as HH:MM)
   const timeResults = await prisma.showtime.findMany({
-    select: {
-      time: true
-    },
-    distinct: ['time'],
-    orderBy: { time: 'asc' }
+    select: { timeOfDaySeconds: true },
+    distinct: ['timeOfDaySeconds'],
+    orderBy: { timeOfDaySeconds: 'asc' },
   });
 
-  // Extract unique times in HH:MM format
-  const times = [...new Set(
-    timeResults.map(showtime =>
-      showtime.time.toISOString().split('T')[1].substring(0, 5)
-    )
-  )];
+  const times = [...new Set(timeResults.map(s => convertSecondsToTime(s.timeOfDaySeconds)))];
 
-  return {
-    genres,
-    dates,
-    times
-  };
-};
-
-interface CreateShowtimeInput {
-  movieId: number;
-  hallId: number;
-  time: Date;
-  price: number;
+  return { genres, dates, times };
 }
 
-export async function createShowtime  (input: CreateShowtimeInput)  {
-  // Validate movie exists
-  const movieExists = await prisma.movie.findUnique({
-    where: { id: input.movieId }
-  });
-  if (!movieExists) {
-    throw new Error('Movie not found');
+export async function getShowtimesWithFilters({
+  genreId,
+  dates,
+  times,
+}: ShowtimeFilterInput) {
+  const whereClause: any = {};
+
+  if (dates?.length) {
+    whereClause.date = {
+      in: dates.map((d) => new Date(d)),
+    };
   }
 
-  // Validate hall exists
-  const hallExists = await prisma.hall.findUnique({
-    where: { id: input.hallId },
-    include: { seats: true }
-  });
-  if (!hallExists) {
-    throw new Error('Hall not found');
+  if (times?.length) {
+    const secondsList = times.map((t) => {
+      const [hh, mm] = t.split(':').map(Number);
+      return hh * 3600 + mm * 60;
+    });
+
+    whereClause.timeOfDaySeconds = {
+      in: secondsList,
+    };
   }
 
-  // Check for time conflicts (30 minutes buffer)
-  const conflictingShowtime = await prisma.showtime.findFirst({
-    where: {
-      hallId: input.hallId,
-      time: {
-        gte: new Date(input.time.getTime() - 30 * 60000), // 30 mins before
-        lte: new Date(input.time.getTime() + 30 * 60000)  // 30 mins after
-      }
-    }
-  });
-
-  if (conflictingShowtime) {
-    throw new Error('Hall is already booked at this time');
-  }
-
-  return await prisma.showtime.create({
-    data: {
-      movieId: input.movieId,
-      hallId: input.hallId,
-      time: input.time,
-      price: input.price
-    },
-    include: {
-      movie: {
-        select: {
-          id: true,
-          title: true,
-          runtime: true
-        }
+  if (genreId !== undefined) {
+    whereClause.movie = {
+      genres: {
+        some: { id: genreId },
       },
-      hall: {
-        select: {
-          id: true,
-          name: true
-        }
-      }
-    }
-  });
-};
+    };
+  }
 
-export async function updateShowtime(id: number, updateData: Partial<CreateShowtimeInput>) {
-  // Check if showtime exists
-  const existingShowtime = await prisma.showtime.findUnique({
-    where: { id }
+  const showtimes = await prisma.showtime.findMany({
+    where: whereClause,
+    include: {
+      movie: true,
+      hall: true,
+    },
+    orderBy: {
+      movieId: 'asc',
+    },
   });
 
-  if (!existingShowtime) {
-    throw new Error('Showtime not found');
-  }
+  const grouped: Record<number, { movie: any; showtimes: any[] }> = {};
 
-  // Validate movie exists if being updated
-  if (updateData.movieId) {
-    const movieExists = await prisma.movie.findUnique({
-      where: { id: updateData.movieId }
-    });
-    if (!movieExists) {
-      throw new Error('Movie not found');
+  for (const s of showtimes) {
+    if (!grouped[s.movieId]) {
+      grouped[s.movieId] = {
+        movie: s.movie,
+        showtimes: [],
+      };
     }
-  }
-
-  // Validate hall exists if being updated
-  if (updateData.hallId) {
-    const hallExists = await prisma.hall.findUnique({
-      where: { id: updateData.hallId }
+    grouped[s.movieId].showtimes.push({
+      id: s.id,
+      hall: s.hall,
+      date: s.date,
+      time: convertSecondsToTime(s.timeOfDaySeconds),
+      price: s.price,
     });
-    if (!hallExists) {
-      throw new Error('Hall not found');
-    }
   }
 
-  // Check for time conflicts (30 minutes buffer) if time is being updated
-  if (updateData.time) {
-    const conflictingShowtime = await prisma.showtime.findFirst({
-      where: {
-        id: { not: id }, // Exclude current showtime
-        hallId: updateData.hallId || existingShowtime.hallId,
-        time: {
-          gte: new Date(updateData.time.getTime() - 30 * 60000),
-          lte: new Date(updateData.time.getTime() + 30 * 60000)
-        }
-      }
-    });
+  return Object.values(grouped);
+}
 
-    if (conflictingShowtime) {
-      throw new Error('Hall is already booked at this time');
-    }
+export async function createShowtime(data: {
+  movieId: number;
+  hallId: number;
+  date: string;
+  time: string;
+  price: number;
+}) {
+  const [hh, mm] = data.time.split(':').map(Number);
+  const timeOfDaySeconds = hh * 3600 + mm * 60;
+
+  const dateOnly = new Date(data.date)
+
+  const showtime = await prisma.showtime.create({
+    data: {
+      movieId: data.movieId,
+      hallId: data.hallId,
+      date: dateOnly,
+      timeOfDaySeconds,
+      price: data.price,
+    },
+  });
+
+  return {
+    ...showtime,
+    time: data.time,
+  };
+}
+
+export async function updateShowtime(id: number, data: {
+  movieId?: number;
+  hallId?: number;
+  date?: string;
+  time?: string;
+  price?: number;
+}) {
+  const updateData: any = {};
+
+  if (data.movieId !== undefined) updateData.movieId = data.movieId;
+  if (data.hallId !== undefined) updateData.hallId = data.hallId;
+  if (data.date !== undefined) updateData.date = new Date(data.date);
+  if (data.time !== undefined) {
+    const [hh, mm] = data.time.split(':').map(Number);
+    updateData.timeOfDaySeconds = hh * 3600 + mm * 60;
   }
+  if (data.price !== undefined) updateData.price = data.price;
 
-  return await prisma.showtime.update({
+  const showtime = await prisma.showtime.update({
     where: { id },
     data: updateData,
-    include: {
-      movie: {
-        select: {
-          id: true,
-          title: true,
-          runtime: true
-        }
-      },
-      hall: {
-        select: {
-          id: true,
-          name: true
-        }
-      }
-    }
   });
+
+  return {
+    ...showtime,
+    time: data.time ?? convertSecondsToTime(showtime.timeOfDaySeconds),
+  };
 }
 
 export async function deleteShowtime(id: number) {
-  // Check if showtime exists
-  const showtime = await prisma.showtime.findUnique({
-    where: { id }
+  await prisma.showtime.delete({
+    where: { id },
   });
+}
 
-  if (!showtime) {
-    throw new Error('Showtime not found');
-  }
+function convertSecondsToTime(seconds: number): string {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
 
-  // Delete associated bookings first if needed
-  await prisma.booking.deleteMany({
-    where: { showtimeId: id }
-  });
+  const paddedHours = hours.toString().padStart(2, '0');
+  const paddedMinutes = minutes.toString().padStart(2, '0');
 
-  return await prisma.showtime.delete({
-    where: { id }
-  });
+  return `${paddedHours}:${paddedMinutes}`;
 }

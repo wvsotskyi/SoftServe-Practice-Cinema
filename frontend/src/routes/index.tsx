@@ -3,7 +3,7 @@ import { MainLayout } from "../components/layouts/MainLayout";
 import { HomePage } from "../pages/HomePage/HomePage";
 import { MoviePage } from "../pages/MoviePage/MoviePage";
 import { FavoritesPage } from "../pages/FavoritesPage/FavoritesPage";
-import { AddSession } from "../pages/AdminPage/AddSession";
+import { ManageSessions } from "../pages/AdminPage/ManageSessions";
 import { AdminLayout } from "../pages/AdminPage/AdminLayout";
 import { AdminHome } from "../pages/AdminPage/AdminHome";
 import { LoginPage } from "../pages/AuthPage/LoginPage";
@@ -11,9 +11,6 @@ import { RegisterPage } from "../pages/AuthPage/RegisterPage";
 import { AuthRoute } from "../components/Routes/AuthRoute";
 import { AdminRoute } from "../components/Routes/AdminRoute";
 import { ProtectedRoute } from "../components/Routes/ProtectedRoute";
-import  EditMovie  from "../pages/AdminPage/EditMovie";
-import  AddMovie from "../pages/AdminPage/AddMovie";
-
 export const router = createBrowserRouter([
   {
     element: <MainLayout />,
@@ -71,14 +68,30 @@ export const router = createBrowserRouter([
             element: <AddMovie />,
           },
           {
-            path: "add-session",
-            element: <AddSession />,
+            path: "manage-session",
+            element: <ManageSessions />,
           },
           {
             path: "edit-movie",
             element: <EditMovie />,
           },
+          {
+            path: "add-session", 
+            element: <AddSession />, 
+          },
+          {
+            path: "edit-session", 
+            element: <EditSession />, 
+          },
         ],
+      },
+      {
+        path: "/sessions",
+        element: <Session />,
+      },
+      {
+        path: "/booking/:showtimeId",
+        element: <Booking />,
       },
     ],
   },

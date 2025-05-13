@@ -25,8 +25,8 @@ export function AdminLayout() {
           <NavLink to="/admin/add-movie" className={linkStyle}>
             <FaPlus /> Додати фільм
           </NavLink>
-          <NavLink to="/admin/add-session" className={linkStyle}>
-            <FaVideo /> Додати сеанс
+          <NavLink to="/admin/manage-session" className={linkStyle}>
+            <FaVideo /> Управління сеансами
           </NavLink>
           <button
             onClick={handleLogout}
@@ -46,8 +46,8 @@ export function AdminLayout() {
           <NavLink to="/admin/add-movie" className={linkStyle}>
             <FaPlus /> Додати фільм
           </NavLink>
-          <NavLink to="/admin/add-session" className={linkStyle}>
-            <FaVideo /> Додати сеанс
+          <NavLink to="/admin/manage-session" className={linkStyle}>
+            <FaVideo /> Управління сеансами
           </NavLink>
           <button
             onClick={handleLogout}

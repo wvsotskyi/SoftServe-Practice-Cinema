@@ -1,65 +1,23 @@
-import { Router } from 'express';
-import {
-  getShowtimesGroupedByMovieController,
-  getShowtimeFilterOptionsController,
-  createShowtimeController,
-  updateShowtimeController,
-  deleteShowtimeController,
-} from '@controllers/showtime.controller.js';
+import express from 'express';
 import { authenticate, verifyAdmin } from '@middlewares/auth.middleware.js';
+import { getFiltersController, getFilteredShowtimesController, createShowtimeController, updateShowtimeController, deleteShowtimeController } from '@controllers/showtime.controller.js';
 
-const router = Router();
+const router = express.Router();
+
 
 /**
  * @swagger
- * /showtimes:
+ * /showtimes/filters:
  *   get:
- *     summary: Get showtimes grouped by movie with optional filters
- *     tags: [Showtimes]
- *     parameters:
- *       - in: query
- *         name: date
- *         schema:
- *           type: string
- *           format: date
- *         description: Filter by specific date (YYYY-MM-DD)
- *       - in: query
- *         name: timeRange[start]
- *         schema:
- *           type: string
- *           format: time
- *         description: Start time for time range filter (HH:MM)
- *       - in: query
- *         name: timeRange[end]
- *         schema:
- *           type: string
- *           format: time
- *         description: End time for time range filter (HH:MM)
- *       - in: query
- *         name: genreId
- *         schema:
- *           type: integer
- *         description: Filter by genre ID
- *       - in: query
- *         name: movieId
- *         schema:
- *           type: integer
- *         description: Filter by specific movie ID
+ *     summary: Get filter options for showtimes (genres, dates, times)
+ *     tags: [Showtime]
  *     responses:
  *       200:
- *         description: List of movies with their showtimes
- *         content:
- *           application/json:
- *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/MovieWithShowtimes'
- *       500:
- *         description: Internal server error
+ *         description: Filter options
  */
-router.get('/', async (req, res, next) => {
+router.get('/filters', async (req, res, next) => {
   try {
-    await getShowtimesGroupedByMovieController(req, res);
+    await getFiltersController(req, res);
   } catch (error) {
     next(error);
   }
@@ -67,23 +25,34 @@ router.get('/', async (req, res, next) => {
 
 /**
  * @swagger
- * /showtimes/filters:
+ * /showtimes:
  *   get:
- *     summary: Get all available filter options for showtimes
- *     tags: [Showtimes]
+ *     summary: Get showtimes grouped by movie with optional filters
+ *     tags: [Showtime]
+ *     parameters:
+ *       - in: query
+ *         name: genreId
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: date
+ *         schema:
+ *           type: string
+ *           example: "2025-05-09,2025-05-10"
+ *         description: Comma-separated list of dates
+ *       - in: query
+ *         name: time
+ *         schema:
+ *           type: string
+ *           example: "14:00,17:30"
+ *         description: Comma-separated list of times
  *     responses:
  *       200:
- *         description: Available filter options
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/ShowtimeFilterOptions'
- *       500:
- *         description: Internal server error
+ *         description: Grouped showtimes by movie
  */
-router.get('/filters', async (req, res, next) => {
+router.get('/', async (req, res, next) => {
   try {
-    await getShowtimeFilterOptionsController(req, res);
+    await getFilteredShowtimesController(req, res);
   } catch (error) {
     next(error);
   }
@@ -94,92 +63,30 @@ router.get('/filters', async (req, res, next) => {
  * /showtimes:
  *   post:
  *     summary: Create a new showtime
- *     tags: [Showtimes]
- *     security:
- *       - bearerAuth: []
+ *     tags: [Showtime]
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
  *             type: object
- *             required:
- *               - movieId
- *               - hallId
- *               - time
- *               - price
+ *             required: [movieId, hallId, date, time, price]
  *             properties:
  *               movieId:
  *                 type: integer
- *                 description: ID of the movie
- *                 example: 1
  *               hallId:
  *                 type: integer
- *                 description: ID of the hall
- *                 example: 1
+ *               date:
+ *                 type: string
+ *                 format: date
  *               time:
  *                 type: string
- *                 format: date-time
- *                 description: Showtime date and time
- *                 example: "2023-12-25T18:00:00Z"
+ *                 example: "19:30"
  *               price:
  *                 type: number
- *                 description: Ticket price
- *                 example: 12.99
  *     responses:
  *       201:
- *         description: Showtime created successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: integer
- *                   example: 201
- *                 message:
- *                   type: string
- *                   example: Showtime created successfully
- *                 data:
- *                   type: object
- *                   properties:
- *                     id:
- *                       type: integer
- *                     movieId:
- *                       type: integer
- *                     hallId:
- *                       type: integer
- *                     time:
- *                       type: string
- *                       format: date-time
- *                     price:
- *                       type: number
- *                     movie:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: integer
- *                         title:
- *                           type: string
- *                         runtime:
- *                           type: integer
- *                     hall:
- *                       type: object
- *                       properties:
- *                         id:
- *                           type: integer
- *                         name:
- *                           type: string
- *       400:
- *         description: Bad request - missing or invalid fields
- *       403:
- *         description: Forbidden - admin access required
- *       404:
- *         description: Not found - movie or hall doesn't exist
- *       409:
- *         description: Conflict - hall is already booked at this time
- *       500:
- *         description: Internal server error
+ *         description: Showtime created
  */
 router.post('/', authenticate, verifyAdmin, async (req, res, next) => {
   try {
@@ -189,24 +96,19 @@ router.post('/', authenticate, verifyAdmin, async (req, res, next) => {
   }
 });
 
-
 /**
  * @swagger
  * /showtimes/{id}:
  *   put:
  *     summary: Update a showtime
- *     tags: [Showtimes]
- *     security:
- *       - bearerAuth: []
+ *     tags: [Showtime]
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
- *         description: The showtime ID
  *     requestBody:
- *       required: true
  *       content:
  *         application/json:
  *           schema:
@@ -214,47 +116,19 @@ router.post('/', authenticate, verifyAdmin, async (req, res, next) => {
  *             properties:
  *               movieId:
  *                 type: integer
- *                 description: ID of the movie
- *                 example: 1
  *               hallId:
  *                 type: integer
- *                 description: ID of the hall
- *                 example: 1
+ *               date:
+ *                 type: string
+ *                 format: date
  *               time:
  *                 type: string
- *                 format: date-time
- *                 description: Showtime date and time
- *                 example: "2023-12-25T18:00:00Z"
+ *                 example: "20:00"
  *               price:
  *                 type: number
- *                 description: Ticket price
- *                 example: 12.99
  *     responses:
  *       200:
- *         description: Showtime updated successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: integer
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: Showtime updated successfully
- *                 data:
- *                   $ref: '#/components/schemas/Showtime'
- *       400:
- *         description: Bad request - invalid fields
- *       403:
- *         description: Forbidden - admin access required
- *       404:
- *         description: Not found - showtime, movie or hall doesn't exist
- *       409:
- *         description: Conflict - hall is already booked at this time
- *       500:
- *         description: Internal server error
+ *         description: Showtime updated
  */
 router.put('/:id', authenticate, verifyAdmin, async (req, res, next) => {
   try {
@@ -269,36 +143,16 @@ router.put('/:id', authenticate, verifyAdmin, async (req, res, next) => {
  * /showtimes/{id}:
  *   delete:
  *     summary: Delete a showtime
- *     tags: [Showtimes]
- *     security:
- *       - bearerAuth: []
+ *     tags: [Showtime]
  *     parameters:
  *       - in: path
  *         name: id
+ *         required: true
  *         schema:
  *           type: integer
- *         required: true
- *         description: The showtime ID
  *     responses:
- *       200:
- *         description: Showtime deleted successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: integer
- *                   example: 200
- *                 message:
- *                   type: string
- *                   example: Showtime deleted successfully
- *       403:
- *         description: Forbidden - admin access required
- *       404:
- *         description: Not found - showtime doesn't exist
- *       500:
- *         description: Internal server error
+ *       204:
+ *         description: Deleted
  */
 router.delete('/:id', authenticate, verifyAdmin, async (req, res, next) => {
   try {
