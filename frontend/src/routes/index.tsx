@@ -2,6 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import { MainLayout } from "../components/layouts/MainLayout";
 import { HomePage } from "../pages/HomePage/HomePage";
 import { MoviePage } from "../pages/MoviePage/MoviePage";
+import { SearchPage } from "../pages/SearchPage/SearchPage";
 import { FavoritesPage } from "../pages/FavoritesPage/FavoritesPage";
 import { ManageSessions } from "../pages/AdminPage/ManageSessions";
 import { AdminLayout } from "../pages/AdminPage/AdminLayout";
@@ -11,6 +12,11 @@ import { RegisterPage } from "../pages/AuthPage/RegisterPage";
 import { AuthRoute } from "../components/Routes/AuthRoute";
 import { AdminRoute } from "../components/Routes/AdminRoute";
 import { ProtectedRoute } from "../components/Routes/ProtectedRoute";
+import { EditMovie } from "../pages/AdminPage/EditMovie";
+import { AddMovie } from "../pages/AdminPage/AddMovie";
+import { Session } from "../pages/Session/Session";
+import { Booking } from "../pages/Booking/Booking";
+
 export const router = createBrowserRouter([
   {
     element: <MainLayout />,
@@ -26,6 +32,10 @@ export const router = createBrowserRouter([
       {
         path: "/movie/:id",
         element: <MoviePage />,
+      },
+      {
+        path:"search",
+        element: <SearchPage />,
       },
       {
         path: "/favorites",
