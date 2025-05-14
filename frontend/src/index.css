@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+body {
+    background-color: #131215;
+}
+
+@font-face {
+    font-family: 'RobotoMono';
+    font-style: normal;
+    font-weight: 100 900;
+    src: local('RobotoMono-VariableFont'), local('RobotoMono-VariableFont'),
+        url('/fonts/RobotoMono-VariableFont.ttf') format('truetype');
+}
+
+:root {
+    font-family: 'RobotoMono', sans-serif;
+}

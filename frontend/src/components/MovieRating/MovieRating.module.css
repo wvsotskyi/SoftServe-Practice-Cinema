@@ -1,0 +1,34 @@
+.movie-rating {
+    display: flex;
+    justify-content: space-between;
+    width: 210px;
+    height: 19px;
+    gap: 15px;
+    align-items: center;
+}
+
+img {
+    max-width: none;
+}
+
+.movie-rating-wrapper {
+    position: relative;
+}
+
+.movie-rating-base {
+    position: relative;
+}
+
+.movie-rating-red-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    overflow: hidden;
+}
+
+.movie-rating-layer-num {
+    font-size: 19px;
+    font-weight: bold;
+    color: #fff;
+}
