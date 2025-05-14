@@ -24,7 +24,7 @@ export function SearchPage() {
       queryParams.append('query', searchTerm);
     }
     if (activeFilters.genres) {
-      queryParams.append('genreId', activeFilters.genres);
+      queryParams.append('genres', activeFilters.genres);
     }
     if (activeFilters.year) {
       queryParams.append('year', activeFilters.year);
